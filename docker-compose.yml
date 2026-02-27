@@ -38,7 +38,11 @@ services:
     ports:
       - "8000:8000"
     environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=subscription_tracker
       - DB_HOST=postgres
+      - DB_PORT=5432
     depends_on:
       postgres:
         condition: service_healthy
