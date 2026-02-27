@@ -7,12 +7,38 @@
 
 ---
 
-## Первый запуск
+## Вариант 1: Запуск с Docker Compose (рекомендуется)
+
+### 1. Запуск всех сервисов
+
+```bash
+docker-compose up -d --build
+```
+
+Контейнеры:
+- **PostgreSQL**: `localhost:5432`
+- **PgAdmin**: http://localhost:5050 (логин: `admin@admin.com`, пароль: `admin`)
+- **Backend API**: http://localhost:8000
+
+### 2. Проверка
+
+- **Swagger UI**: http://localhost:8000/docs
+- **Health check**: http://localhost:8000/health
+
+### 3. Остановка
+
+```bash
+docker-compose down
+```
+
+---
+
+## Вариант 2: Локальная разработка
 
 ### 1. Запуск базы данных
 
 ```bash
-docker-compose up -d
+docker-compose up -d postgres pgadmin
 ```
 
 Контейнеры:
