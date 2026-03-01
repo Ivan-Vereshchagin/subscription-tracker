@@ -15,6 +15,8 @@ from app.crud.subscription import (
     get_total_monthly_cost,
 )
 from app.database import get_db
+from app.dependencies import get_current_user
+from app.models.user import User
 from app.schemas.subscription import (
     SubscriptionCreate,
     SubscriptionUpdate,
@@ -38,20 +40,21 @@ def list_subscriptions(
     is_active: Optional[bool] = Query(None, description="Фильтр по статусу"),
     category: Optional[str] = Query(None, description="Фильтр по категории"),
     db: Session = Depends(get_db),
-    # TODO: user_id: str = Depends(get_current_user) — после аутентификации
-    user_id: str = Query(..., description="ID пользователя (временное решение)"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Получить список всех подписок пользователя
-    
+
     - **skip**: Пропустить N записей (пагинация)
     - **limit**: Максимум записей (1-1000)
     - **is_active**: Фильтр по статусу активности
     - **category**: Фильтр по категории
+    
+    Требуется аутентификация!
     """
     subscriptions = get_subscriptions(
         db=db,
-        user_id=user_id,
+        user_id=current_user.id,
         skip=skip,
         limit=limit,
         is_active=is_active,
@@ -68,19 +71,20 @@ def list_subscriptions(
 def get_subscription_details(
     subscription_id: str,
     db: Session = Depends(get_db),
-    # TODO: current_user: User = Depends(get_current_user)
-    user_id: str = Query(..., description="ID пользователя"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Получить подробную информацию о подписке
-    
+
     - **subscription_id**: ID подписки
-    """
-    subscription = get_subscription(db, subscription_id=subscription_id, user_id=user_id)
     
+    Требуется аутентификация!
+    """
+    subscription = get_subscription(db, subscription_id=subscription_id, user_id=current_user.id)
+
     if not subscription:
         raise HTTPException(status_code=404, detail="Подписка не найдена")
-    
+
     return subscription
 
 
@@ -88,12 +92,11 @@ def get_subscription_details(
 def create_new_subscription(
     subscription_data: SubscriptionCreate,
     db: Session = Depends(get_db),
-    # TODO: current_user: User = Depends(get_current_user)
-    user_id: str = Query(..., description="ID пользователя"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Создать новую подписку
-    
+
     - **name**: Название подписки (обязательно)
     - **category**: Категория (обязательно)
     - **price**: Стоимость (обязательно, > 0)
@@ -102,10 +105,12 @@ def create_new_subscription(
     - **description**: Описание (опционально)
     - **next_billing_date**: Дата следующего списания (опционально)
     - **is_active**: Статус активности (по умолчанию True)
+    
+    Требуется аутентификация!
     """
     subscription = create_subscription(
         db=db,
-        user_id=user_id,
+        user_id=current_user.id,
         name=subscription_data.name,
         category=subscription_data.category,
         price=subscription_data.price,
@@ -124,12 +129,11 @@ def update_existing_subscription(
     subscription_id: str,
     subscription_data: SubscriptionUpdate,
     db: Session = Depends(get_db),
-    # TODO: current_user: User = Depends(get_current_user)
-    user_id: str = Query(..., description="ID пользователя"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Обновить существующую подписку
-    
+
     Обновляются только переданные поля (все опциональны):
     - **name**: Название
     - **category**: Категория
@@ -139,17 +143,19 @@ def update_existing_subscription(
     - **description**: Описание
     - **next_billing_date**: Дата следующего списания
     - **is_active**: Статус активности
+    
+    Требуется аутентификация!
     """
     subscription = update_subscription(
         db=db,
         subscription_id=subscription_id,
-        user_id=user_id,
+        user_id=current_user.id,
         **subscription_data.model_dump(exclude_unset=True),
     )
-    
+
     if not subscription:
         raise HTTPException(status_code=404, detail="Подписка не найдена")
-    
+
     return subscription
 
 
@@ -157,19 +163,20 @@ def update_existing_subscription(
 def delete_existing_subscription(
     subscription_id: str,
     db: Session = Depends(get_db),
-    # TODO: current_user: User = Depends(get_current_user)
-    user_id: str = Query(..., description="ID пользователя"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Удалить подписку
-    
+
     - **subscription_id**: ID подписки для удаления
-    """
-    success = delete_subscription(db, subscription_id=subscription_id, user_id=user_id)
     
+    Требуется аутентификация!
+    """
+    success = delete_subscription(db, subscription_id=subscription_id, user_id=current_user.id)
+
     if not success:
         raise HTTPException(status_code=404, detail="Подписка не найдена")
-    
+
     return None  # 204 No Content
 
 
@@ -177,8 +184,7 @@ def delete_existing_subscription(
 def get_monthly_cost_stats(
     currency: str = Query("RUB", description="Валюта для расчёта"),
     db: Session = Depends(get_db),
-    # TODO: current_user: User = Depends(get_current_user)
-    user_id: str = Query(..., description="ID пользователя"),
+    current_user: User = Depends(get_current_user),
 ):
     """
     Рассчитать общую месячную стоимость активных подписок
@@ -189,8 +195,10 @@ def get_monthly_cost_stats(
     - yearly ÷ 12
     
     - **currency**: Валюта для расчёта (по умолчанию RUB)
+    
+    Требуется аутентификация!
     """
-    total = get_total_monthly_cost(db=db, user_id=user_id, currency=currency)
+    total = get_total_monthly_cost(db=db, user_id=current_user.id, currency=currency)
     
     return {
         "total_monthly_cost": total,
