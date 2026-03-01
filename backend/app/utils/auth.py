@@ -22,6 +22,7 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 REFRESH_TOKEN_EXPIRE_DAYS = 7
 
 # Контекст для хеширования паролей
+# bcrypt имеет ограничение 72 байта на пароль
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
@@ -40,28 +41,42 @@ def get_secret_key() -> str:
 def verify_password(plain_password: str, hashed_password: str) -> bool:
     """
     Проверить пароль против хеша
-    
+
     Args:
         plain_password: Пароль в открытом виде
         hashed_password: Хеш из базы данных
-    
+
     Returns:
         True если пароль верный
     """
-    return pwd_context.verify(plain_password, hashed_password)
+    import bcrypt
+    
+    return bcrypt.checkpw(
+        plain_password.encode('utf-8'),
+        hashed_password.encode('utf-8')
+    )
 
 
 def get_password_hash(password: str) -> str:
     """
     Создать хеш пароля
-    
+
     Args:
         password: Пароль в открытом виде
-    
+
     Returns:
         Хешированный пароль
+
+    Note:
+        bcrypt ограничивает пароль 72 байтами
     """
-    return pwd_context.hash(password)
+    import bcrypt
+    
+    # bcrypt сам обрезает пароль до 72 байт внутри
+    password_bytes = password.encode('utf-8')
+    salt = bcrypt.gensalt(rounds=12)
+    hashed = bcrypt.hashpw(password_bytes, salt)
+    return hashed.decode('utf-8')
 
 
 # === JWT токены ===
