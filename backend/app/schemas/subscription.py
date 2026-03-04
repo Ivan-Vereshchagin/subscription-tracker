@@ -18,7 +18,7 @@ class SubscriptionCreate(BaseModel):
     category: str = Field(..., min_length=1, max_length=100, description="Категория (например, Streaming, Music)")
     price: Decimal = Field(..., gt=0, description="Стоимость подписки")
     currency: str = Field(default="RUB", min_length=3, max_length=3, description="Валюта (RUB, USD, EUR)")
-    billing_cycle: str = Field(default="monthly", description="Период оплаты: weekly, monthly, yearly")
+    billing_cycle: str = Field(default="monthly", description="Период оплаты: weekly, monthly, quarterly, semi-annual, yearly")
     next_billing_date: Optional[datetime] = Field(None, description="Дата следующего списания")
     is_active: bool = Field(default=True, description="Активна ли подписка")
 
@@ -73,3 +73,30 @@ class SubscriptionListResponse(BaseModel):
 
     items: list[SubscriptionResponse]
     total: int = Field(..., description="Общее количество")
+
+
+# === Схемы для статистики ===
+
+class SubscriptionCostByCategory(BaseModel):
+    """Расходы по категории"""
+
+    category: str = Field(..., description="Название категории")
+    total: Decimal = Field(..., description="Общая сумма в месяц")
+    count: int = Field(..., description="Количество подписок в категории")
+
+
+class SubscriptionStatsByCategory(BaseModel):
+    """Ответ со статистикой по категориям"""
+
+    categories: list[SubscriptionCostByCategory]
+    total: Decimal = Field(..., description="Общая сумма по всем категориям")
+
+
+class SubscriptionCostByPeriod(BaseModel):
+    """Ответ со стоимостью за период"""
+
+    start_date: datetime = Field(..., description="Начало периода")
+    end_date: datetime = Field(..., description="Конец периода")
+    total: Decimal = Field(..., description="Общая стоимость за период")
+    currency: str = Field(..., description="Валюта")
+    days: int = Field(..., description="Количество дней в периоде")

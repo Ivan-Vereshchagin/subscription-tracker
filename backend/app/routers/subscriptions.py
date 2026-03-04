@@ -1,6 +1,8 @@
 """
 API роутер для управления подписками
 """
+
+from datetime import datetime
 from typing import Optional
 
 from fastapi import APIRouter, Depends, HTTPException, Query
@@ -13,6 +15,8 @@ from app.crud.subscription import (
     update_subscription,
     delete_subscription,
     get_total_monthly_cost,
+    get_total_cost_by_period,
+    get_cost_by_category,
 )
 from app.database import get_db
 from app.dependencies import get_current_user
@@ -22,6 +26,8 @@ from app.schemas.subscription import (
     SubscriptionUpdate,
     SubscriptionResponse,
     SubscriptionListResponse,
+    SubscriptionStatsByCategory,
+    SubscriptionCostByPeriod,
 )
 
 
@@ -188,19 +194,96 @@ def get_monthly_cost_stats(
 ):
     """
     Рассчитать общую месячную стоимость активных подписок
-    
+
     Конвертирует все подписки к месячной стоимости:
     - weekly × 4
     - monthly × 1
+    - quarterly ÷ 3
+    - semi-annual ÷ 6
     - yearly ÷ 12
-    
+
     - **currency**: Валюта для расчёта (по умолчанию RUB)
-    
+
     Требуется аутентификация!
     """
     total = get_total_monthly_cost(db=db, user_id=current_user.id, currency=currency)
-    
+
     return {
         "total_monthly_cost": total,
         "currency": currency,
+    }
+
+
+@router.get("/stats/by-period", response_model=SubscriptionCostByPeriod)
+def get_cost_stats_by_period(
+    start_date: datetime = Query(..., description="Начало периода (например: 2026-01-01)"),
+    end_date: datetime = Query(..., description="Конец периода (например: 2026-02-01)"),
+    currency: str = Query("RUB", description="Валюта для расчёта"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Рассчитать общую стоимость подписок за произвольный период
+
+    Конвертирует стоимость подписки к дневной, затем умножает на количество дней:
+    - weekly: price / 7 × days
+    - monthly: price / 30 × days
+    - quarterly: price / 90 × days
+    - semi-annual: price / 180 × days
+    - yearly: price / 365 × days
+
+    - **start_date**: Начало периода
+    - **end_date**: Конец периода
+    - **currency**: Валюта (по умолчанию RUB)
+
+    Требуется аутентификация!
+    """
+    total = get_total_cost_by_period(
+        db=db,
+        user_id=current_user.id,
+        start_date=start_date,
+        end_date=end_date,
+        currency=currency,
+    )
+
+    days = (end_date - start_date).days
+
+    return {
+        "start_date": start_date,
+        "end_date": end_date,
+        "total": total,
+        "currency": currency,
+        "days": days,
+    }
+
+
+@router.get("/stats/by-category", response_model=SubscriptionStatsByCategory)
+def get_cost_stats_by_category(
+    currency: str = Query("RUB", description="Валюта для расчёта"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Получить расходы по категориям (группировка)
+
+    Возвращает список категорий с общей месячной стоимостью и количеством подписок:
+    - **category**: Название категории
+    - **total**: Общая сумма в месяц
+    - **count**: Количество подписок
+
+    - **currency**: Валюта (по умолчанию RUB)
+
+    Требуется аутентификация!
+    """
+    categories = get_cost_by_category(
+        db=db,
+        user_id=current_user.id,
+        currency=currency,
+    )
+
+    total = sum(cat["total"] for cat in categories)
+
+    return {
+        "categories": categories,
+        "total": total,
     }

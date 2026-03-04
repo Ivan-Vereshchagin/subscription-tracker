@@ -57,7 +57,7 @@ class Subscription(Base):
     billing_cycle: Mapped[str] = mapped_column(
         String(20),
         nullable=False,
-        default="monthly"  # weekly, monthly, yearly
+        default="monthly"  # weekly, monthly, quarterly, semi-annual, yearly
     )
     next_billing_date: Mapped[datetime | None] = mapped_column(
         DateTime,

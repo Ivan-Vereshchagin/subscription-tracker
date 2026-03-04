@@ -174,12 +174,12 @@ def get_total_monthly_cost(
 ) -> Decimal:
     """
     Рассчитать общую месячную стоимость активных подписок
-    
+
     Args:
         db: Сессия базы данных
         user_id: ID пользователя
         currency: Валюта для расчёта
-    
+
     Returns:
         Общая стоимость в месяц
     """
@@ -188,16 +188,158 @@ def get_total_monthly_cost(
         Subscription.is_active == True,
         Subscription.currency == currency,
     ).all()
-    
+
     total = Decimal(0)
-    
+
     for sub in subscriptions:
         # Конвертируем к месячной стоимости
         if sub.billing_cycle == "weekly":
             total += sub.price * 4  # ~4 недели в месяце
         elif sub.billing_cycle == "monthly":
             total += sub.price
+        elif sub.billing_cycle == "quarterly":
+            total += sub.price / 3
+        elif sub.billing_cycle == "semi-annual":
+            total += sub.price / 6
         elif sub.billing_cycle == "yearly":
             total += sub.price / 12
     
     return total
+
+
+def get_total_cost_by_period(
+    db: Session,
+    user_id: str,
+    start_date: datetime,
+    end_date: datetime,
+    currency: str = "RUB",
+) -> Decimal:
+    """
+    Рассчитать общую стоимость подписок за период
+    
+    Учитывает только активные подписки и их billing_cycle:
+    - weekly: стоимость × количество недель в периоде
+    - monthly: стоимость × количество месяцев в периоде
+    - yearly: стоимость × количество лет в периоде
+
+    Args:
+        db: Сессия базы данных
+        user_id: ID пользователя
+        start_date: Начало периода
+        end_date: Конец периода
+        currency: Валюта для расчёта
+
+    Returns:
+        Общая стоимость за период
+    """
+    subscriptions = db.query(Subscription).filter(
+        Subscription.user_id == user_id,
+        Subscription.is_active == True,
+        Subscription.currency == currency,
+    ).all()
+    
+    # Количество дней в периоде
+    days_in_period = (end_date - start_date).days
+    
+    if days_in_period <= 0:
+        return Decimal(0)
+    
+    total = Decimal(0)
+    
+    for sub in subscriptions:
+        if sub.billing_cycle == "weekly":
+            daily_cost = sub.price / 7
+        elif sub.billing_cycle == "monthly":
+            daily_cost = sub.price / 30
+        elif sub.billing_cycle == "quarterly":
+            daily_cost = sub.price / 90
+        elif sub.billing_cycle == "semi-annual":
+            daily_cost = sub.price / 180
+        elif sub.billing_cycle == "yearly":
+            daily_cost = sub.price / 365
+        else:
+            daily_cost = sub.price / 30
+        
+        total += daily_cost * days_in_period
+    
+    return total
+
+
+def get_cost_by_category(
+    db: Session,
+    user_id: str,
+    currency: str = "RUB",
+) -> list[dict]:
+    """
+    Получить расходы по категориям (группировка)
+
+    Args:
+        db: Сессия базы данных
+        user_id: ID пользователя
+        currency: Валюта для расчёта
+
+    Returns:
+        Список словарей: [{category, total, count}, ...]
+    """
+    subscriptions = db.query(Subscription).filter(
+        Subscription.user_id == user_id,
+        Subscription.is_active == True,
+        Subscription.currency == currency,
+    ).all()
+    
+    categories: dict[str, dict] = {}
+    
+    for sub in subscriptions:
+        category = sub.category
+        
+        if category not in categories:
+            categories[category] = {"total": Decimal(0), "count": 0}
+
+        # Конвертируем к месячной стоимости
+        if sub.billing_cycle == "weekly":
+            monthly_cost = sub.price * 4
+        elif sub.billing_cycle == "monthly":
+            monthly_cost = sub.price
+        elif sub.billing_cycle == "quarterly":
+            monthly_cost = sub.price / 3
+        elif sub.billing_cycle == "semi-annual":
+            monthly_cost = sub.price / 6
+        elif sub.billing_cycle == "yearly":
+            monthly_cost = sub.price / 12
+        else:
+            monthly_cost = sub.price
+        
+        categories[category]["total"] += monthly_cost
+        categories[category]["count"] += 1
+    
+    result = [
+        {"category": cat, "total": data["total"], "count": data["count"]}
+        for cat, data in categories.items()
+    ]
+    
+    result.sort(key=lambda x: x["total"], reverse=True)
+    
+    return result
+
+
+def get_subscriptions_active_at_date(
+    db: Session,
+    user_id: str,
+    date: datetime,
+) -> list[Subscription]:
+    """
+    Получить подписки, активные на определённую дату
+
+    Args:
+        db: Сессия базы данных
+        user_id: ID пользователя
+        date: Дата для проверки
+
+    Returns:
+        Список активных подписок
+    """
+    return db.query(Subscription).filter(
+        Subscription.user_id == user_id,
+        Subscription.is_active == True,
+        Subscription.created_at <= date,
+    ).all()
