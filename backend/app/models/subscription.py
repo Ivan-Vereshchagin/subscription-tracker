@@ -13,6 +13,7 @@ from app.database import Base
 
 if TYPE_CHECKING:
     from app.models.user import User
+    from app.models.payment import Payment
 
 
 class Subscription(Base):
@@ -83,6 +84,13 @@ class Subscription(Base):
 
     # Связь с пользователем
     user: Mapped["User"] = relationship("User", back_populates="subscriptions")
+    
+    # Связь с платежами
+    payments: Mapped[list["Payment"]] = relationship(
+        "Payment",
+        back_populates="subscription",
+        cascade="all, delete-orphan"
+    )
 
     def __repr__(self) -> str:
         return f"<Subscription {self.name} ({self.price} {self.currency})>"
