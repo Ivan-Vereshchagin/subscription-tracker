@@ -4,6 +4,9 @@ from app.schemas.subscription import (
     SubscriptionUpdate,
     SubscriptionResponse,
     SubscriptionListResponse,
+    SubscriptionCostByCategory,
+    SubscriptionStatsByCategory,
+    SubscriptionCostByPeriod,
 )
 from app.schemas.auth import (
     UserCreate,
@@ -12,6 +15,15 @@ from app.schemas.auth import (
     TokenRefresh,
     UserResponse,
 )
+from app.schemas.payment import (
+    PaymentCreate,
+    PaymentUpdate,
+    PaymentResponse,
+    PaymentListResponse,
+    PaymentStatsByPeriod,
+    PaymentStatsByCategory,
+    PaymentStatsByCategoryResponse,
+)
 
 __all__ = [
     # Subscription
@@ -19,10 +31,21 @@ __all__ = [
     "SubscriptionUpdate",
     "SubscriptionResponse",
     "SubscriptionListResponse",
+    "SubscriptionCostByCategory",
+    "SubscriptionStatsByCategory",
+    "SubscriptionCostByPeriod",
     # Auth
     "UserCreate",
     "UserLogin",
     "Token",
     "TokenRefresh",
     "UserResponse",
+    # Payment
+    "PaymentCreate",
+    "PaymentUpdate",
+    "PaymentResponse",
+    "PaymentListResponse",
+    "PaymentStatsByPeriod",
+    "PaymentStatsByCategory",
+    "PaymentStatsByCategoryResponse",
 ]
