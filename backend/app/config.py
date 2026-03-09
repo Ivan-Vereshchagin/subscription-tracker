@@ -20,6 +20,16 @@ class Settings(BaseSettings):
     DB_HOST: str = "localhost"
     DB_PORT: int = 5432
 
+    # Email (SMTP)
+    SMTP_HOST: str = "smtp.gmail.com"
+    SMTP_PORT: int = 587
+    SMTP_USER: str = ""
+    SMTP_PASSWORD: str = ""
+    EMAIL_FROM: str = ""
+    
+    # Уведомления
+    NOTIFICATION_DAYS_BEFORE: int = 3  # За сколько дней уведомлять
+
     @property
     def database_url(self) -> str:
         """URL подключения к базе данных"""

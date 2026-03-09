@@ -1,3 +1,6 @@
+from contextlib import asynccontextmanager
+from typing import AsyncGenerator
+
 from fastapi import FastAPI
 from fastapi.security import OAuth2PasswordBearer
 
@@ -5,9 +8,26 @@ from app.config import settings
 from app.routers.subscriptions import router as subscriptions_router
 from app.routers.auth import router as auth_router
 from app.routers.payments import router as payments_router
+from app.scheduler import start_scheduler, stop_scheduler
+
 
 # Настройка OAuth2 для Swagger UI
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+
+
+@asynccontextmanager
+async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
+    """
+    Управление жизненным циклом приложения
+    
+    Запускается при старте и остановке сервера
+    """
+    # При запуске
+    start_scheduler()
+    yield
+    # При остановке
+    stop_scheduler()
+
 
 app = FastAPI(
     title="Subscription Tracker",
@@ -15,6 +35,7 @@ app = FastAPI(
     version="0.1.0",
     openapi_url="/openapi.json",
     docs_url="/docs",
+    lifespan=lifespan,
 )
 
 # Настройка security для Swagger
