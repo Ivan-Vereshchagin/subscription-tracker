@@ -6,7 +6,7 @@ from datetime import datetime, timedelta
 from decimal import Decimal
 from typing import List
 
-from sqlalchemy import sa
+import sqlalchemy as sa
 from sqlalchemy.orm import Session
 
 from app.models.subscription import Subscription
