@@ -1,6 +1,5 @@
-"""
-CRUD операции для подписок
-"""
+# CRUD операции для подписок
+
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
@@ -29,8 +28,7 @@ def get_subscriptions(
         is_active: Фильтр по статусу активности
         category: Фильтр по категории
     
-    Returns:
-        Список подписок
+    Returns: Список подписок
     """
     query = db.query(Subscription).filter(Subscription.user_id == user_id)
     
@@ -52,8 +50,7 @@ def get_subscription(db: Session, subscription_id: str, user_id: str) -> Optiona
         subscription_id: ID подписки
         user_id: ID владельца
     
-    Returns:
-        Подписка или None
+    Returns: Подписка или None
     """
     return db.query(Subscription).filter(
         Subscription.id == subscription_id,
@@ -88,8 +85,7 @@ def create_subscription(
         next_billing_date: Дата следующего списания
         is_active: Статус активности
     
-    Returns:
-        Созданная подписка
+    Returns: Созданная подписка
     """
     subscription = Subscription(
         user_id=user_id,
@@ -125,15 +121,13 @@ def update_subscription(
         user_id: ID владельца
         **kwargs: Поля для обновления
     
-    Returns:
-        Обновлённая подписка или None
+    Returns: Обновлённая подписка или None
     """
     subscription = get_subscription(db, subscription_id, user_id)
     
     if not subscription:
         return None
     
-    # Обновляем только переданные поля
     for field, value in kwargs.items():
         if value is not None and hasattr(subscription, field):
             setattr(subscription, field, value)
@@ -153,8 +147,7 @@ def delete_subscription(db: Session, subscription_id: str, user_id: str) -> bool
         subscription_id: ID подписки
         user_id: ID владельца
     
-    Returns:
-        True если удалено, False если не найдено
+    Returns: True если удалено, False если не найдено
     """
     subscription = get_subscription(db, subscription_id, user_id)
     
@@ -180,8 +173,7 @@ def get_total_monthly_cost(
         user_id: ID пользователя
         currency: Валюта для расчёта
 
-    Returns:
-        Общая стоимость в месяц
+    Returns: Общая стоимость в месяц
     """
     subscriptions = db.query(Subscription).filter(
         Subscription.user_id == user_id,
@@ -192,9 +184,8 @@ def get_total_monthly_cost(
     total = Decimal(0)
 
     for sub in subscriptions:
-        # Конвертируем к месячной стоимости
         if sub.billing_cycle == "weekly":
-            total += sub.price * 4  # ~4 недели в месяце
+            total += sub.price * 4
         elif sub.billing_cycle == "monthly":
             total += sub.price
         elif sub.billing_cycle == "quarterly":
@@ -216,11 +207,6 @@ def get_total_cost_by_period(
 ) -> Decimal:
     """
     Рассчитать общую стоимость подписок за период
-    
-    Учитывает только активные подписки и их billing_cycle:
-    - weekly: стоимость × количество недель в периоде
-    - monthly: стоимость × количество месяцев в периоде
-    - yearly: стоимость × количество лет в периоде
 
     Args:
         db: Сессия базы данных
@@ -229,8 +215,7 @@ def get_total_cost_by_period(
         end_date: Конец периода
         currency: Валюта для расчёта
 
-    Returns:
-        Общая стоимость за период
+    Returns: Общая стоимость за период
     """
     subscriptions = db.query(Subscription).filter(
         Subscription.user_id == user_id,
@@ -238,7 +223,6 @@ def get_total_cost_by_period(
         Subscription.currency == currency,
     ).all()
     
-    # Количество дней в периоде
     days_in_period = (end_date - start_date).days
     
     if days_in_period <= 0:
@@ -278,8 +262,7 @@ def get_cost_by_category(
         user_id: ID пользователя
         currency: Валюта для расчёта
 
-    Returns:
-        Список словарей: [{category, total, count}, ...]
+    Returns: Список словарей: [{category, total, count}]
     """
     subscriptions = db.query(Subscription).filter(
         Subscription.user_id == user_id,
@@ -295,7 +278,6 @@ def get_cost_by_category(
         if category not in categories:
             categories[category] = {"total": Decimal(0), "count": 0}
 
-        # Конвертируем к месячной стоимости
         if sub.billing_cycle == "weekly":
             monthly_cost = sub.price * 4
         elif sub.billing_cycle == "monthly":
@@ -335,8 +317,7 @@ def get_subscriptions_active_at_date(
         user_id: ID пользователя
         date: Дата для проверки
 
-    Returns:
-        Список активных подписок
+    Returns: Список активных подписок
     """
     return db.query(Subscription).filter(
         Subscription.user_id == user_id,

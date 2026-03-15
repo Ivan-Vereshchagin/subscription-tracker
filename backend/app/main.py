@@ -38,10 +38,8 @@ app = FastAPI(
     lifespan=lifespan,
 )
 
-# Настройка security для Swagger
-app.openapi_schema = None  # Будет сгенерирована автоматически
+app.openapi_schema = None
 
-# Подключение роутеров
 app.include_router(auth_router)
 app.include_router(subscriptions_router)
 app.include_router(payments_router)

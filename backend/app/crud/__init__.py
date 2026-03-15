@@ -1,6 +1,5 @@
-"""
-CRUD операции
-"""
+# CRUD операции
+
 from app.crud.subscription import (
     get_subscriptions,
     get_subscription,

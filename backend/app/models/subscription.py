@@ -1,6 +1,5 @@
-"""
-Модель подписки
-"""
+# Модель подписки
+
 import uuid
 from datetime import datetime
 from decimal import Decimal
@@ -82,10 +81,8 @@ class Subscription(Base):
         nullable=False
     )
 
-    # Связь с пользователем
     user: Mapped["User"] = relationship("User", back_populates="subscriptions")
     
-    # Связь с платежами
     payments: Mapped[list["Payment"]] = relationship(
         "Payment",
         back_populates="subscription",

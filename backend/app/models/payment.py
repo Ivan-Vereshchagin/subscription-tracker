@@ -1,6 +1,5 @@
-"""
-Модель платежа (история списаний)
-"""
+# Модель платежа (история списаний)
+
 import uuid
 from datetime import datetime
 from decimal import Decimal
@@ -28,7 +27,6 @@ class Payment(Base):
         index=True
     )
     
-    # Связи
     subscription_id: Mapped[str] = mapped_column(
         String(36),
         ForeignKey("subscriptions.id", ondelete="CASCADE"),
@@ -43,7 +41,6 @@ class Payment(Base):
         index=True
     )
     
-    # Информация о платеже
     amount: Mapped[Decimal] = mapped_column(
         Numeric(10, 2),
         nullable=False
@@ -55,7 +52,6 @@ class Payment(Base):
         nullable=False
     )
     
-    # Даты
     payment_date: Mapped[datetime] = mapped_column(
         DateTime,
         nullable=False,
@@ -72,7 +68,6 @@ class Payment(Base):
         nullable=False
     )
     
-    # Статус платежа
     status: Mapped[str] = mapped_column(
         String(20),
         default="completed",  # pending, completed, failed, cancelled
@@ -80,14 +75,12 @@ class Payment(Base):
         index=True
     )
     
-    # Метаданные
     created_at: Mapped[datetime] = mapped_column(
         DateTime,
         default=datetime.utcnow,
         nullable=False
     )
     
-    # Связи с моделями
     subscription: Mapped["Subscription"] = relationship(
         "Subscription",
         back_populates="payments"

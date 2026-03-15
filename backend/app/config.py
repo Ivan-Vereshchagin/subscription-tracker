@@ -28,7 +28,7 @@ class Settings(BaseSettings):
     EMAIL_FROM: str = ""
     
     # Уведомления
-    NOTIFICATION_DAYS_BEFORE: int = 3  # За сколько дней уведомлять
+    NOTIFICATION_DAYS_BEFORE: int = 3
 
     @property
     def database_url(self) -> str:

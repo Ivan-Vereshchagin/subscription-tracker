@@ -66,7 +66,6 @@ def get_scheduler():
     """
     Получить экземпляр планировщика
     
-    Returns:
-        BackgroundScheduler
+    Returns: BackgroundScheduler
     """
     return scheduler

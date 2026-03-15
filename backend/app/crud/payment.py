@@ -1,6 +1,5 @@
-"""
-CRUD операции для платежей
-"""
+# CRUD операции для платежей
+
 from datetime import datetime
 from decimal import Decimal
 from typing import List, Optional
@@ -18,8 +17,7 @@ def get_payment(db: Session, payment_id: str) -> Optional[Payment]:
         db: Сессия базы данных
         payment_id: ID платежа
     
-    Returns:
-        Платёж или None
+    Returns: Платёж или None
     """
     return db.query(Payment).filter(Payment.id == payment_id).first()
 
@@ -41,8 +39,7 @@ def get_payments_by_subscription(
         skip: Пропустить N записей
         limit: Максимум записей
     
-    Returns:
-        Список платежей
+    Returns: Список платежей
     """
     return db.query(Payment).filter(
         Payment.subscription_id == subscription_id,
@@ -71,8 +68,7 @@ def get_payments_by_user(
         start_date: Начало периода
         end_date: Конец периода
     
-    Returns:
-        Список платежей
+    Returns: Список платежей
     """
     query = db.query(Payment).filter(Payment.user_id == user_id)
     
@@ -113,8 +109,7 @@ def create_payment(
         period_end: Конец оплаченного периода
         status: Статус платежа
     
-    Returns:
-        Созданный платёж
+    Returns: Созданный платёж
     """
     payment = Payment(
         subscription_id=subscription_id,
@@ -149,8 +144,7 @@ def update_payment_status(
         user_id: ID владельца
         status: Новый статус
     
-    Returns:
-        Обновлённый платёж или None
+    Returns: Обновлённый платёж или None
     """
     payment = get_payment(db, payment_id)
     
@@ -173,8 +167,7 @@ def delete_payment(db: Session, payment_id: str, user_id: str) -> bool:
         payment_id: ID платежа
         user_id: ID владельца
     
-    Returns:
-        True если удалено, False если не найдено
+    Returns: True если удалено, False если не найдено
     """
     payment = get_payment(db, payment_id)
     
@@ -204,8 +197,7 @@ def get_total_paid_by_period(
         end_date: Конец периода
         currency: Валюта
     
-    Returns:
-        Общая сумма
+    Returns: Общая сумма
     """
     from sqlalchemy import func
     
@@ -237,8 +229,7 @@ def get_payments_by_category(
         end_date: Конец периода
         currency: Валюта
     
-    Returns:
-        Список: [{category, total, count}, ...]
+    Returns: Список: [{category, total, count}]
     """
     from sqlalchemy import func
     

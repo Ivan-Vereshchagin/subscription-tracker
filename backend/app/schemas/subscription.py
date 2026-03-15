@@ -1,14 +1,10 @@
-"""
-Pydantic-схемы для подписок
-"""
+# Pydantic-схемы для подписок
+
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
 from pydantic import BaseModel, Field, ConfigDict
-
-
-# === Схемы для создания ===
 
 class SubscriptionCreate(BaseModel):
     """Схема для создания подписки"""
@@ -22,14 +18,8 @@ class SubscriptionCreate(BaseModel):
     next_billing_date: Optional[datetime] = Field(None, description="Дата следующего списания")
     is_active: bool = Field(default=True, description="Активна ли подписка")
 
-
-# === Схемы для обновления ===
-
 class SubscriptionUpdate(BaseModel):
-    """Схема для обновления подписки
-    
-    Все поля необязательны — обновляются только переданные
-    """
+    """Схема для обновления подписки"""
 
     name: Optional[str] = Field(None, min_length=1, max_length=255, description="Название подписки")
     description: Optional[str] = Field(None, max_length=1000, description="Описание")
@@ -40,11 +30,8 @@ class SubscriptionUpdate(BaseModel):
     next_billing_date: Optional[datetime] = Field(None, description="Дата следующего списания")
     is_active: Optional[bool] = Field(None, description="Статус активности")
 
-
-# === Схемы для ответов (Response) ===
-
 class SubscriptionBase(BaseModel):
-    """Базовая схема подписки (общие поля)"""
+    """Базовая схема подписки"""
 
     id: str = Field(..., description="ID подписки")
     user_id: str = Field(..., description="ID владельца")
@@ -61,21 +48,16 @@ class SubscriptionBase(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class SubscriptionResponse(SubscriptionBase):
     """Полный ответ с данными подписки"""
 
     pass
-
 
 class SubscriptionListResponse(BaseModel):
     """Ответ со списком подписок"""
 
     items: list[SubscriptionResponse]
     total: int = Field(..., description="Общее количество")
-
-
-# === Схемы для статистики ===
 
 class SubscriptionCostByCategory(BaseModel):
     """Расходы по категории"""
@@ -84,13 +66,11 @@ class SubscriptionCostByCategory(BaseModel):
     total: Decimal = Field(..., description="Общая сумма в месяц")
     count: int = Field(..., description="Количество подписок в категории")
 
-
 class SubscriptionStatsByCategory(BaseModel):
     """Ответ со статистикой по категориям"""
 
     categories: list[SubscriptionCostByCategory]
     total: Decimal = Field(..., description="Общая сумма по всем категориям")
-
 
 class SubscriptionCostByPeriod(BaseModel):
     """Ответ со стоимостью за период"""

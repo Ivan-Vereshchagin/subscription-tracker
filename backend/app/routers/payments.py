@@ -1,6 +1,5 @@
-"""
-API роутер для управления платежами
-"""
+# API роутер для управления платежами
+
 from datetime import datetime
 from typing import Optional
 
@@ -49,11 +48,11 @@ def list_payments(
     """
     Получить историю платежей пользователя
     
-    - **skip**: Пропустить N записей (пагинация)
-    - **limit**: Максимум записей (1-1000)
-    - **status**: Фильтр по статусу (pending, completed, failed, cancelled)
-    - **start_date**: Начало периода
-    - **end_date**: Конец периода
+    - skip: Пропустить N записей (пагинация)
+    - limit: Максимум записей (1-1000)
+    - status: Фильтр по статусу (pending, completed, failed, cancelled)
+    - start_date: Начало периода
+    - end_date: Конец периода
     
     Требуется аутентификация!
     """
@@ -82,7 +81,7 @@ def get_payment_details(
     """
     Получить подробную информацию о платеже
     
-    - **payment_id**: ID платежа
+    - payment_id: ID платежа
     
     Требуется аутентификация!
     """
@@ -103,17 +102,17 @@ def create_new_payment(
     """
     Создать запись о платеже
     
-    - **subscription_id**: ID подписки (должна принадлежать пользователю)
-    - **amount**: Сумма платежа
-    - **currency**: Валюта (по умолчанию RUB)
-    - **payment_date**: Дата списания
-    - **period_start**: Начало оплаченного периода
-    - **period_end**: Конец оплаченного периода
-    - **status**: Статус (по умолчанию completed)
+    - subscription_id: ID подписки
+    - amount: Сумма платежа
+    - currency: Валюта (по умолчанию RUB)
+    - payment_date: Дата списания
+    - period_start: Начало оплаченного периода
+    - period_end: Конец оплаченного периода
+    - status: Статус (по умолчанию completed)
     
     Требуется аутентификация!
     """
-    # Проверяем, что подписка принадлежит пользователю
+
     subscription = get_subscription(db, subscription_id=payment_data.subscription_id, user_id=current_user.id)
     
     if not subscription:
@@ -144,8 +143,8 @@ def update_payment(
     """
     Обновить статус платежа
     
-    - **payment_id**: ID платежа
-    - **status**: Новый статус (pending, completed, failed, cancelled)
+    - payment_id: ID платежа
+    - status: Новый статус (pending, completed, failed, cancelled)
     
     Требуется аутентификация!
     """
@@ -171,7 +170,7 @@ def delete_existing_payment(
     """
     Удалить запись о платеже
     
-    - **payment_id**: ID платежа
+    - payment_id: ID платежа
     
     Требуется аутентификация!
     """
@@ -194,9 +193,9 @@ def list_subscription_payments(
     """
     Получить историю платежей по конкретной подписке
     
-    - **subscription_id**: ID подписки
-    - **skip**: Пропустить N записей
-    - **limit**: Максимум записей
+    - subscription_id: ID подписки
+    - skip: Пропустить N записей
+    - limit: Максимум записей
     
     Требуется аутентификация!
     """
@@ -231,9 +230,9 @@ def get_payment_stats_by_period(
     """
     Получить общую сумму оплаченных платежей за период
     
-    - **start_date**: Начало периода
-    - **end_date**: Конец периода
-    - **currency**: Валюта (по умолчанию RUB)
+    - start_date: Начало периода
+    - end_date: Конец периода
+    - currency: Валюта (по умолчанию RUB)
     
     Требуется аутентификация!
     """
@@ -272,9 +271,9 @@ def get_payment_stats_by_category(
     """
     Получить сумму платежей по категориям за период
     
-    - **start_date**: Начало периода
-    - **end_date**: Конец периода
-    - **currency**: Валюта (по умолчанию RUB)
+    - start_date: Начало периода
+    - end_date: Конец периода
+    - currency: Валюта (по умолчанию RUB)
     
     Требуется аутентификация!
     """

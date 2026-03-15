@@ -1,6 +1,5 @@
-"""
-Сервисы приложения
-"""
+# Сервисы приложения
+
 from app.services.notifications import (
     get_upcoming_subscriptions,
     format_notification_message,

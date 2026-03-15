@@ -1,6 +1,5 @@
-"""
-Сервис уведомлений о предстоящих списаниях
-"""
+# Сервис уведомлений о предстоящих списаниях
+
 import logging
 import sys
 from datetime import datetime, timedelta
@@ -15,11 +14,9 @@ from app.models.user import User
 from app.config import settings
 
 
-# Настройка логирования для вывода в консоль
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
-# Добавляем handler для вывода в stdout, если ещё не добавлен
 if not logger.handlers:
     handler = logging.StreamHandler(sys.stdout)
     handler.setLevel(logging.INFO)
@@ -36,15 +33,14 @@ def get_upcoming_subscriptions(
     Получить подписки с предстоящим списанием
 
     Проверяем подписки у которых next_billing_date:
-    - Ровно через 3 дня (первое уведомление)
-    - Ровно через 1 день (второе уведомление)
+    - Через 3 дня
+    - Через 1 день
 
     Args:
         db: Сессия базы данных
-        days_ahead: Не используется (оставлено для совместимости)
+        days_ahead (оставлено для совместимости)
 
-    Returns:
-        Список подписок
+    Returns: Список подписок
     """
     from datetime import date
     
@@ -75,10 +71,8 @@ def format_notification_message(
         subscription: Подписка
         days_until: Через сколько дней списание
     
-    Returns:
-        Текст сообщения
+    Returns: Текст сообщения
     """
-    # Формируем строку времени
     if days_until <= 0:
         time_str = "⏰ Менее суток"
     elif days_until == 1:
@@ -101,31 +95,15 @@ def format_notification_message(
 
 def get_days_word(days: int) -> str:
     """
-    Склонение слова "день" для русского языка
-    
-    Args:
-        days: Количество дней
-    
-    Returns:
-        Правильная форма слова
+    Склонение слова "день"
     """
-    if days == 1:
-        return "день"
-    elif 2 <= days <= 4:
-        return "дня"
-    else:
-        return "дней"
-
+    if days == 1: return "день"
+    elif 2 <= days <= 4: return "дня"
+    else: return "дней"
 
 def get_billing_cycle_name(cycle: str) -> str:
     """
-    Название периода оплаты на русском
-    
-    Args:
-        cycle: Значение billing_cycle
-    
-    Returns:
-        Название периода
+    Название периода оплаты
     """
     names = {
         "weekly": "Еженедельно",
@@ -150,11 +128,6 @@ async def send_email_notification(
         subject: Тема письма
         message: Текст сообщения
     
-    Returns:
-        True если отправлено успешно
-    
-    Note:
-        Требуется настроенный SMTP сервер
     """
     if not settings.SMTP_USER or not settings.SMTP_PASSWORD:
         logger.warning("SMTP не настроен, уведомление не отправлено")
@@ -203,7 +176,6 @@ def check_and_notify_upcoming_subscriptions(db: Session) -> dict:
     stats["checked"] = len(subscriptions)
 
     for sub in subscriptions:
-        # Считаем дней до списания (округляем до целых дней)
         delta = sub.next_billing_date - datetime.utcnow()
         days_until = delta.days
         
@@ -216,7 +188,6 @@ def check_and_notify_upcoming_subscriptions(db: Session) -> dict:
             stats["failed"] += 1
             continue
 
-        # Отправляем email уведомление
         import asyncio
 
         try:
@@ -228,10 +199,10 @@ def check_and_notify_upcoming_subscriptions(db: Session) -> dict:
         sent = loop.run_until_complete(send_email_notification(user.email, f"🔔 Напоминание: {sub.name}", message))
 
         if sent:
-            logger.info(f"✅ Email отправлен на {user.email}")
+            logger.info(f"Email отправлен на {user.email}")
             stats["notified"] += 1
         else:
-            logger.warning(f"❌ Email не отправлен на {user.email}")
+            logger.warning(f"Email не отправлен на {user.email}")
             stats["failed"] += 1
 
     return stats

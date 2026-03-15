@@ -1,13 +1,9 @@
-"""
-Pydantic-схемы для аутентификации
-"""
+# Pydantic-схемы для аутентификации
+
 from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel, Field, EmailStr
-
-
-# === Схемы для регистрации ===
 
 class UserCreate(BaseModel):
     """Схема для регистрации пользователя"""
@@ -16,16 +12,11 @@ class UserCreate(BaseModel):
     password: str = Field(..., min_length=8, max_length=100, description="Пароль (минимум 8 символов)")
 
 
-# === Схемы для логина ===
-
 class UserLogin(BaseModel):
     """Схема для входа пользователя"""
 
     email: EmailStr = Field(..., description="Email адрес")
     password: str = Field(..., description="Пароль")
-
-
-# === Схемы для токенов ===
 
 class Token(BaseModel):
     """Ответ с токеном доступа"""
@@ -34,14 +25,10 @@ class Token(BaseModel):
     refresh_token: str = Field(..., description="JWT refresh токен")
     token_type: str = Field(default="bearer", description="Тип токена")
 
-
 class TokenRefresh(BaseModel):
     """Схема для обновления токена"""
 
     refresh_token: str = Field(..., description="JWT refresh токен")
-
-
-# === Схемы для ответов (пользователь) ===
 
 class UserBase(BaseModel):
     """Базовая схема пользователя"""

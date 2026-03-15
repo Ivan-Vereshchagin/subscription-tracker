@@ -1,6 +1,5 @@
-"""
-API роутер для аутентификации
-"""
+# API роутер для аутентификации
+
 from datetime import timedelta
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -31,10 +30,10 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
     """
     Зарегистрировать нового пользователя
     
-    - **email**: Email адрес (должен быть уникальным)
-    - **password**: Пароль (минимум 8 символов)
+    - email: Email адрес (должен быть уникальным)
+    - password: Пароль (минимум 8 символов)
     """
-    # Проверяем, существует ли пользователь с таким email
+
     existing_user = get_user_by_email(db, email=user_data.email)
     
     if existing_user:
@@ -43,7 +42,6 @@ def register_user(user_data: UserCreate, db: Session = Depends(get_db)):
             detail="Пользователь с таким email уже существует",
         )
     
-    # Создаём пользователя
     user = create_user(
         db=db,
         email=user_data.email,
@@ -58,9 +56,7 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     """
     Войти в систему и получить токены
     
-    Использует OAuth2PasswordRequestForm для совместимости со стандартом OAuth2
-    
-    - username: Email адрес (требование OAuth2)
+    - username: Email адрес
     - password: Пароль
     
     Возвращает:
@@ -68,10 +64,9 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
     - refresh_token: JWT токен для обновления access_token (7 дней)
     - token_type: "bearer"
     """
-    # Находим пользователя по email (username в OAuth2Form)
+
     user = get_user_by_email(db, email=form_data.username)
     
-    # Проверяем существование и пароль
     if not user or not verify_password(form_data.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -79,15 +74,12 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Проверяем, активен ли пользователь
     if not user.is_active:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Пользователь не активен",
         )
     
-    # Создаём токены
-    # "sub" (subject) — стандартный claim для идентификатора пользователя
     access_token = create_access_token(data={"sub": user.id})
     refresh_token = create_refresh_token(data={"sub": user.id})
     
@@ -100,12 +92,8 @@ def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depend
 
 @router.post("/refresh", response_model=Token)
 def refresh_token(token_data: TokenRefresh, db: Session = Depends(get_db)):
-    """
-    Обновить access токен используя refresh токен
+    """Обновить access токен используя refresh токен"""
 
-    - **refresh_token**: Refresh токен, полученный при логине
-    """
-    # Проверяем refresh токен
     payload = decode_token(token_data.refresh_token)
 
     if not payload:
@@ -123,7 +111,6 @@ def refresh_token(token_data: TokenRefresh, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Проверяем, существует ли пользователь
     user = get_user(db, user_id=user_id)
     
     if not user or not user.is_active:
@@ -133,7 +120,6 @@ def refresh_token(token_data: TokenRefresh, db: Session = Depends(get_db)):
             headers={"WWW-Authenticate": "Bearer"},
         )
     
-    # Создаём новые токены
     new_access_token = create_access_token(data={"sub": user.id})
     new_refresh_token = create_refresh_token(data={"sub": user.id})
     

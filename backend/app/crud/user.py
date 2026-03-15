@@ -1,6 +1,5 @@
-"""
-CRUD операции для пользователей
-"""
+# CRUD операции для пользователей
+
 from typing import Optional
 
 from sqlalchemy.orm import Session
@@ -17,8 +16,7 @@ def get_user(db: Session, user_id: str) -> Optional[User]:
         db: Сессия базы данных
         user_id: ID пользователя
     
-    Returns:
-        Пользователь или None
+    Returns: Пользователь или None
     """
     return db.query(User).filter(User.id == user_id).first()
 
@@ -31,8 +29,7 @@ def get_user_by_email(db: Session, email: str) -> Optional[User]:
         db: Сессия базы данных
         email: Email адрес
     
-    Returns:
-        Пользователь или None
+    Returns: Пользователь или None
     """
     return db.query(User).filter(User.email == email).first()
 
@@ -47,10 +44,9 @@ def create_user(db: Session, email: str, password: str, is_superuser: bool = Fal
         password: Пароль (в открытом виде, будет захеширован)
         is_superuser: Права суперпользователя
     
-    Returns:
-        Созданный пользователь
+    Returns: Созданный пользователь
     """
-    # Хешируем пароль перед сохранением
+
     hashed_password = get_password_hash(password)
     
     user = User(
@@ -80,19 +76,16 @@ def update_user(
         user_id: ID пользователя
         **kwargs: Поля для обновления
     
-    Returns:
-        Обновлённый пользователь или None
+    Returns: Обновлённый пользователь или None
     """
     user = get_user(db, user_id)
     
     if not user:
         return None
     
-    # Если передан пароль — хешируем его
     if "password" in kwargs:
         kwargs["hashed_password"] = get_password_hash(kwargs.pop("password"))
     
-    # Обновляем только переданные поля
     for field, value in kwargs.items():
         if value is not None and hasattr(user, field):
             setattr(user, field, value)
@@ -111,8 +104,7 @@ def delete_user(db: Session, user_id: str) -> bool:
         db: Сессия базы данных
         user_id: ID пользователя
     
-    Returns:
-        True если удалён, False если не найден
+    Returns: True если удалён, False если не найден
     """
     user = get_user(db, user_id)
     

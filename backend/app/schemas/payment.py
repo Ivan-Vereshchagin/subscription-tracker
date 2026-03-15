@@ -1,14 +1,10 @@
-"""
-Pydantic-схемы для платежей
-"""
+# Pydantic-схемы для платежей
+
 from datetime import datetime
 from decimal import Decimal
 from typing import Optional
 
 from pydantic import BaseModel, Field, ConfigDict
-
-
-# === Схемы для создания ===
 
 class PaymentCreate(BaseModel):
     """Схема для создания записи о платеже"""
@@ -21,16 +17,10 @@ class PaymentCreate(BaseModel):
     period_end: datetime = Field(..., description="Конец оплаченного периода")
     status: str = Field(default="completed", description="Статус: pending, completed, failed, cancelled")
 
-
-# === Схемы для обновления ===
-
 class PaymentUpdate(BaseModel):
     """Схема для обновления платежа"""
 
     status: Optional[str] = Field(None, description="Статус платежа")
-
-
-# === Схемы для ответов (Response) ===
 
 class PaymentBase(BaseModel):
     """Базовая схема платежа"""
@@ -48,21 +38,16 @@ class PaymentBase(BaseModel):
 
     model_config = ConfigDict(from_attributes=True)
 
-
 class PaymentResponse(PaymentBase):
     """Полный ответ с данными платежа"""
 
     pass
-
 
 class PaymentListResponse(BaseModel):
     """Ответ со списком платежей"""
 
     items: list[PaymentResponse]
     total: int = Field(..., description="Общее количество")
-
-
-# === Схемы для статистики ===
 
 class PaymentStatsByPeriod(BaseModel):
     """Статистика платежей за период"""

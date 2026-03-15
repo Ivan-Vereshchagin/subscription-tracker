@@ -1,6 +1,5 @@
-"""
-Модель пользователя
-"""
+# Модель пользователя
+
 import uuid
 from datetime import datetime
 from typing import TYPE_CHECKING
@@ -58,14 +57,12 @@ class User(Base):
         nullable=False
     )
 
-    # Связь с подписками
     subscriptions: Mapped[list["Subscription"]] = relationship(
         "Subscription",
         back_populates="user",
         cascade="all, delete-orphan"
     )
     
-    # Связь с платежами
     payments: Mapped[list["Payment"]] = relationship(
         "Payment",
         back_populates="user"
