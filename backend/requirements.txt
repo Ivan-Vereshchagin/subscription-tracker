@@ -29,3 +29,6 @@ apscheduler==3.10.4
 
 # Email
 aiosmtplib==3.0.1
+
+# Development
+flake8==7.0.0
