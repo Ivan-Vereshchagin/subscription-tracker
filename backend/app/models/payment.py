@@ -29,8 +29,8 @@ class Payment(Base):
     
     subscription_id: Mapped[str] = mapped_column(
         String(36),
-        ForeignKey("subscriptions.id", ondelete="CASCADE"),
-        nullable=False,
+        ForeignKey("subscriptions.id", ondelete="SET NULL"),
+        nullable=True,
         index=True
     )
     

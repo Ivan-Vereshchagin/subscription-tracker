@@ -82,11 +82,11 @@ class Subscription(Base):
     )
 
     user: Mapped["User"] = relationship("User", back_populates="subscriptions")
-    
+
     payments: Mapped[list["Payment"]] = relationship(
         "Payment",
         back_populates="subscription",
-        cascade="all, delete-orphan"
+        cascade="delete"
     )
 
     def __repr__(self) -> str:
