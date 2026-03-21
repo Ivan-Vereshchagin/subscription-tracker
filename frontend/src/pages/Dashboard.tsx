@@ -18,6 +18,8 @@ import {
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
+import EditIcon from '@mui/icons-material/Edit';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 export default function Dashboard() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -30,7 +32,8 @@ export default function Dashboard() {
   const loadSubscriptions = async () => {
     try {
       const response = await subscriptionsApi.list();
-      setSubscriptions(response.data.items);
+      const activeSubscriptions = response.data.items.filter((sub: Subscription) => sub.is_active);
+      setSubscriptions(activeSubscriptions);
     } catch (error) {
       console.error('Failed to load subscriptions:', error);
     }
@@ -42,20 +45,27 @@ export default function Dashboard() {
     navigate('/login');
   };
 
-  const getBillingCycleEmoji = (cycle: string) => {
-    const emojis: Record<string, string> = {
-      weekly: '📅',
-      monthly: '🗓️',
-      quarterly: '📆',
-      'semi-annual': '📆',
-      yearly: '📅',
-    };
-    return emojis[cycle] || '💳';
+  const handleArchive = async (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    if (!confirm('Вы уверены, что хотите удалить эту подписку?')) {
+      return;
+    }
+    
+    try {
+      await subscriptionsApi.update(id, { is_active: false });
+      setSubscriptions(prev => prev.filter(sub => sub.id !== id));
+    } catch (error) {
+      console.error('Failed to archive subscription:', error);
+      alert('Ошибка при удалении подписки');
+    }
   };
 
   const getTotalMonthlyCost = () => {
+    if (subscriptions.length === 0) return 0;
+    
     return subscriptions.reduce((total, sub) => {
-      const price = sub.price;
+      const price = typeof sub.price === 'string' ? parseFloat(sub.price) : sub.price;
       switch (sub.billing_cycle) {
         case 'weekly':
           return total + price * 4;
@@ -91,9 +101,6 @@ export default function Dashboard() {
           <Box>
             <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
               Мои подписки
-            </Typography>
-            <Typography variant="body2" sx={{ opacity: 0.9 }}>
-              Управляйте своими подписками в одном месте
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 2 }}>
@@ -134,16 +141,14 @@ export default function Dashboard() {
               borderRadius: 2,
               p: 2,
               flex: 1,
+              textAlign: 'center',
             }}
           >
-            <Box sx={{ display: 'flex', alignItems: 'center', gap: 1, mb: 1 }}>
-              <AttachMoneyIcon sx={{ fontSize: 20 }} />
-              <Typography variant="body2" sx={{ opacity: 0.9 }}>
-                В месяц
-              </Typography>
-            </Box>
+            <Typography variant="body2" sx={{ opacity: 0.9, mb: 1 }}>
+              В месяц
+            </Typography>
             <Typography variant="h5" sx={{ fontWeight: 700 }}>
-              {getTotalMonthlyCost().toFixed(2)} ₽
+              {Number(getTotalMonthlyCost()).toFixed(2)} ₽
             </Typography>
           </Box>
           <Box
@@ -204,28 +209,68 @@ export default function Dashboard() {
       ) : (
         <Grid container spacing={3}>
           {subscriptions.map((sub) => (
-            <Grid size={{ xs: 12, sm: 6, md: 4 }} key={sub.id}>
+            <Grid size={{ xs: 12, sm: 6, md: 12 }} key={sub.id}>
               <Card
                 sx={{
                   height: '100%',
                   display: 'flex',
                   flexDirection: 'column',
+                  position: 'relative',
+                  background: 'linear-gradient(135deg, #fce7f3 0%, #f1f5f9 100%)',
+                  borderRadius: 3,
+                  boxShadow: '0 4px 20px 0 rgba(99, 102, 241, 0.1)',
+                  transition: 'transform 0.2s, box-shadow 0.2s',
+                  '&:hover': {
+                    transform: 'translateY(-4px)',
+                    boxShadow: '0 8px 30px 0 rgba(99, 102, 241, 0.15)',
+                  },
                 }}
               >
-                <CardContent sx={{ flexGrow: 1 }}>
-                  <Box sx={{ display: 'flex', justifyContent: 'space-between', mb: 2 }}>
+                {/* Кнопки в правом верхнем углу */}
+                <Box sx={{ position: 'absolute', top: 8, right: 8, zIndex: 1, display: 'flex', gap: 0.5 }}>
+                  <IconButton
+                    onClick={(e) => handleArchive(sub.id, e)}
+                    sx={{
+                      background: 'rgba(239, 68, 68, 0.1)',
+                      color: '#ef4444',
+                      '&:hover': {
+                        background: 'rgba(239, 68, 68, 0.2)',
+                      },
+                    }}
+                    size="small"
+                    title="Удалить подписку"
+                  >
+                    <DeleteIcon fontSize="small" />
+                  </IconButton>
+                  <IconButton
+                    onClick={() => navigate(`/subscriptions/${sub.id}/edit`)}
+                    sx={{
+                      background: 'rgba(99, 102, 241, 0.1)',
+                      color: '#6366f1',
+                      '&:hover': {
+                        background: 'rgba(99, 102, 241, 0.2)',
+                      },
+                    }}
+                    size="small"
+                    title="Редактировать"
+                  >
+                    <EditIcon fontSize="small" />
+                  </IconButton>
+                </Box>
+
+                <CardContent sx={{ flexGrow: 1, pt: 2 }}>
+                  {/* Категория в верхнем левом углу */}
+                  <Box sx={{ mb: 2 }}>
                     <Chip
                       label={sub.category}
                       size="small"
                       sx={{
-                        bgcolor: 'primary.light',
-                        color: 'primary.dark',
+                        bgcolor: 'rgba(99, 102, 241, 0.1)',
+                        color: '#6366f1',
                         fontWeight: 600,
+                        justifyContent: 'flex-start',
                       }}
                     />
-                    <Typography variant="body2" color="text.secondary">
-                      {getBillingCycleEmoji(sub.billing_cycle)}
-                    </Typography>
                   </Box>
 
                   <Typography variant="h6" gutterBottom sx={{ fontWeight: 600 }}>
@@ -242,11 +287,11 @@ export default function Dashboard() {
                     </Typography>
                   )}
 
-                  <Box sx={{ mt: 'auto' }}>
+                  <Box sx={{ mt: 'auto', textAlign: 'center' }}>
                     <Typography variant="h5" color="primary" sx={{ fontWeight: 700 }}>
-                      {sub.price} {sub.currency}
+                      {sub.price} ₽
                     </Typography>
-                    <Typography variant="caption" color="text.secondary">
+                    <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
                       {sub.billing_cycle === 'weekly' && 'в неделю'}
                       {sub.billing_cycle === 'monthly' && 'в месяц'}
                       {sub.billing_cycle === 'quarterly' && 'в квартал'}
