@@ -20,6 +20,7 @@ import LogoutIcon from '@mui/icons-material/Logout';
 import AttachMoneyIcon from '@mui/icons-material/AttachMoney';
 import EditIcon from '@mui/icons-material/Edit';
 import DeleteIcon from '@mui/icons-material/Delete';
+import HistoryIcon from '@mui/icons-material/History';
 
 export default function Dashboard() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -104,6 +105,21 @@ export default function Dashboard() {
             </Typography>
           </Box>
           <Box sx={{ display: 'flex', gap: 2 }}>
+            <Button
+              variant="outlined"
+              startIcon={<HistoryIcon />}
+              onClick={() => navigate('/payments')}
+              sx={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                color: 'white',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.3)',
+                },
+              }}
+            >
+              История платежей
+            </Button>
             <Button
               variant="contained"
               startIcon={<AddIcon />}
