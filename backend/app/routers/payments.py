@@ -72,6 +72,34 @@ def list_payments(
     }
 
 
+@router.get("/pending", response_model=PaymentListResponse)
+def list_pending_payments(
+    skip: int = Query(0, ge=0, description="Пропустить N записей"),
+    limit: int = Query(100, ge=1, le=1000, description="Максимум записей"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Получить ожидающие платежи пользователя (pending)
+
+    Требуется аутентификация!
+    """
+    from app.crud.payment import get_payments_by_user
+
+    payments = get_payments_by_user(
+        db=db,
+        user_id=current_user.id,
+        skip=skip,
+        limit=limit,
+        status="pending",
+    )
+
+    return {
+        "items": payments,
+        "total": len(payments),
+    }
+
+
 @router.get("/{payment_id}", response_model=PaymentResponse)
 def get_payment_details(
     payment_id: str,
@@ -257,34 +285,6 @@ def get_payment_stats_by_period(
         "total": total,
         "currency": currency,
         "count": payments_count,
-    }
-
-
-@router.get("/pending", response_model=PaymentListResponse)
-def list_pending_payments(
-    skip: int = Query(0, ge=0, description="Пропустить N записей"),
-    limit: int = Query(100, ge=1, le=1000, description="Максимум записей"),
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """
-    Получить ожидающие платежи пользователя (pending)
-    
-    Требуется аутентификация!
-    """
-    from app.crud.payment import get_payments_by_user
-    
-    payments = get_payments_by_user(
-        db=db,
-        user_id=current_user.id,
-        skip=skip,
-        limit=limit,
-        status="pending",
-    )
-    
-    return {
-        "items": payments,
-        "total": len(payments),
     }
 
 

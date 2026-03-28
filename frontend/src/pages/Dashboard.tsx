@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { subscriptionsApi } from '../api/client';
-import type { Subscription } from '../types';
+import { subscriptionsApi, paymentsApi } from '../api/client';
+import type { Subscription, Payment } from '../types';
 import {
   Container,
   Typography,
@@ -24,10 +24,12 @@ import HistoryIcon from '@mui/icons-material/History';
 
 export default function Dashboard() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
+  const [pendingPayments, setPendingPayments] = useState<Payment[]>([]);
   const navigate = useNavigate();
 
   useEffect(() => {
     loadSubscriptions();
+    loadPendingPayments();
   }, []);
 
   const loadSubscriptions = async () => {
@@ -40,6 +42,15 @@ export default function Dashboard() {
     }
   };
 
+  const loadPendingPayments = async () => {
+    try {
+      const response = await paymentsApi.listPending();
+      setPendingPayments(response.data.items);
+    } catch (error) {
+      console.error('Failed to load pending payments:', error);
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem('access_token');
     localStorage.removeItem('refresh_token');
@@ -48,17 +59,33 @@ export default function Dashboard() {
 
   const handleArchive = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     if (!confirm('Вы уверены, что хотите удалить эту подписку?')) {
       return;
     }
-    
+
     try {
       await subscriptionsApi.update(id, { is_active: false });
       setSubscriptions(prev => prev.filter(sub => sub.id !== id));
     } catch (error) {
       console.error('Failed to archive subscription:', error);
       alert('Ошибка при удалении подписки');
+    }
+  };
+
+  const handleConfirmPayment = async (paymentId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    try {
+      await paymentsApi.confirm(paymentId);
+      // Обновляем список pending платежей
+      await loadPendingPayments();
+      // Обновляем подписки (возможно, next_billing_date обновился)
+      await loadSubscriptions();
+      alert('Платёж подтверждён!');
+    } catch (error) {
+      console.error('Failed to confirm payment:', error);
+      alert('Ошибка при подтверждении платежа');
     }
   };
 
@@ -82,6 +109,11 @@ export default function Dashboard() {
           return total + price;
       }
     }, 0);
+  };
+
+  const getSubscriptionName = (subscriptionId: string) => {
+    const sub = subscriptions.find(s => s.id === subscriptionId);
+    return sub ? sub.name : 'Подписка';
   };
 
   return (
@@ -223,7 +255,67 @@ export default function Dashboard() {
           </Button>
         </Paper>
       ) : (
-        <Grid container spacing={3}>
+        <>
+          {/* Секция предстоящих платежей */}
+          {pendingPayments.length > 0 && (
+            <Paper
+              elevation={0}
+              sx={{
+                mb: 4,
+                p: 3,
+                borderRadius: 3,
+                background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
+                border: '2px solid #f59e0b',
+              }}
+            >
+              <Typography variant="h6" sx={{ fontWeight: 700, mb: 2, color: '#92400e' }}>
+                ⏰ Предстоящие платежи ({pendingPayments.length})
+              </Typography>
+              <Grid container spacing={2}>
+                {pendingPayments.map((payment) => (
+                  <Grid size={{ xs: 12, sm: 6, md: 12 }} key={payment.id}>
+                    <Paper
+                      elevation={0}
+                      sx={{
+                        p: 2,
+                        borderRadius: 2,
+                        background: 'rgba(255, 255, 255, 0.7)',
+                      }}
+                    >
+                      <Typography variant="body2" color="text.secondary" gutterBottom>
+                        {getSubscriptionName(payment.subscription_id)}
+                      </Typography>
+                      <Typography variant="h6" color="primary" sx={{ fontWeight: 700 }}>
+                        {payment.amount} {payment.currency}
+                      </Typography>
+                      <Typography variant="caption" color="text.secondary" display="block">
+                        {new Date(payment.payment_date).toLocaleDateString('ru-RU')}
+                      </Typography>
+                      <Box sx={{ mt: 2, display: 'flex', gap: 1 }}>
+                        <Button
+                          size="small"
+                          variant="contained"
+                          onClick={(e) => handleConfirmPayment(payment.id, e)}
+                          sx={{ flex: 1 }}
+                        >
+                          ✅ Подтвердить
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={() => navigate(`/payments/${payment.id}/edit`)}
+                        >
+                          ✏️
+                        </Button>
+                      </Box>
+                    </Paper>
+                  </Grid>
+                ))}
+              </Grid>
+            </Paper>
+          )}
+
+          <Grid container spacing={3}>
           {subscriptions.map((sub) => (
             <Grid size={{ xs: 12, sm: 6, md: 12 }} key={sub.id}>
               <Card
@@ -320,6 +412,7 @@ export default function Dashboard() {
             </Grid>
           ))}
         </Grid>
+      </>
       )}
     </Container>
   );

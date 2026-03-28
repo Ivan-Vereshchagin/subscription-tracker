@@ -61,9 +61,11 @@ export const subscriptionsApi = {
 
 export const paymentsApi = {
   list: () => apiClient.get('/payments/'),
+  listPending: () => apiClient.get('/payments/pending'),
   listBySubscription: (subscriptionId: string) =>
     apiClient.get(`/payments/subscription/${subscriptionId}`),
   create: (data: any) => apiClient.post('/payments/', data),
+  confirm: (id: string) => apiClient.post(`/payments/${id}/confirm`),
   statsByPeriod: (start: string, end: string) =>
     apiClient.get('/payments/stats/by-period', {
       params: { start_date: start, end_date: end },
