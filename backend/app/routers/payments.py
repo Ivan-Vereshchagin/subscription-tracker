@@ -288,6 +288,32 @@ def list_pending_payments(
     }
 
 
+@router.post("/{payment_id}/confirm", response_model=PaymentResponse)
+def confirm_payment(
+    payment_id: str,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Подтвердить платёж (перевести в статус completed)
+    
+    Требуется аутентификация!
+    """
+    from app.crud.payment import get_payment, update_payment_status
+    
+    payment = update_payment_status(
+        db=db,
+        payment_id=payment_id,
+        user_id=current_user.id,
+        status="completed",
+    )
+    
+    if not payment:
+        raise HTTPException(status_code=404, detail="Платёж не найден")
+    
+    return payment
+
+
 @router.get("/stats/by-category", response_model=PaymentStatsByCategoryResponse)
 def get_payment_stats_by_category(
     start_date: datetime = Query(..., description="Начало периода"),
