@@ -161,6 +161,45 @@ def create_new_payment(
     return payment
 
 
+@router.put("/{payment_id}", response_model=PaymentResponse)
+def update_payment_full(
+    payment_id: str,
+    payment_data: PaymentCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Полностью обновить платёж
+
+    - payment_id: ID платежа
+    - amount: Сумма
+    - currency: Валюта
+    - payment_date: Дата платежа
+    - period_start: Начало периода
+    - period_end: Конец периода
+
+    Требуется аутентификация!
+    """
+    from app.crud.payment import get_payment, update_subscription
+    
+    payment = get_payment(db, payment_id)
+    
+    if not payment or payment.user_id != current_user.id:
+        raise HTTPException(status_code=404, detail="Платёж не найден")
+    
+    # Обновляем поля
+    payment.amount = payment_data.price
+    payment.currency = payment_data.currency
+    payment.payment_date = payment_data.payment_date
+    payment.period_start = payment_data.period_start
+    payment.period_end = payment_data.period_end
+    
+    db.commit()
+    db.refresh(payment)
+    
+    return payment
+
+
 @router.patch("/{payment_id}", response_model=PaymentResponse)
 def update_payment(
     payment_id: str,
