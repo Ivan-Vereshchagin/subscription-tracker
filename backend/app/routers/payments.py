@@ -337,19 +337,32 @@ def confirm_payment(
     """
     Подтвердить платёж (перевести в статус completed)
     
+    Также обновляет next_billing_date у подписки
+    
     Требуется аутентификация!
     """
-    from app.crud.payment import get_payment, update_payment_status
+    from app.crud.payment import get_payment
     
-    payment = update_payment_status(
-        db=db,
-        payment_id=payment_id,
-        user_id=current_user.id,
-        status="completed",
-    )
+    payment = get_payment(db, payment_id)
     
-    if not payment:
+    if not payment or payment.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Платёж не найден")
+    
+    payment.status = 'completed'
+    
+    # Обновляем next_billing_date у подписки
+    from app.models.subscription import Subscription
+    from datetime import timedelta
+    
+    subscription = db.query(Subscription).filter(
+        Subscription.id == payment.subscription_id
+    ).first()
+    
+    if subscription:
+        subscription.next_billing_date = payment.period_end
+    
+    db.commit()
+    db.refresh(payment)
     
     return payment
 
