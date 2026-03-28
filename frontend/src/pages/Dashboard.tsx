@@ -139,12 +139,30 @@ export default function Dashboard() {
           <Box sx={{ display: 'flex', gap: 2 }}>
             <Button
               variant="outlined"
+              startIcon={<AttachMoneyIcon />}
+              onClick={() => navigate('/payments/new')}
+              sx={{
+                background: 'rgba(255, 255, 255, 0.2)',
+                backdropFilter: 'blur(10px)',
+                color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
+                '&:hover': {
+                  background: 'rgba(255, 255, 255, 0.3)',
+                  borderColor: 'rgba(255, 255, 255, 0.8)',
+                },
+              }}
+            >
+              Добавить платёж
+            </Button>
+            <Button
+              variant="outlined"
               startIcon={<HistoryIcon />}
               onClick={() => navigate('/payments')}
               sx={{
                 background: 'rgba(255, 255, 255, 0.2)',
                 backdropFilter: 'blur(10px)',
                 color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
                 '&:hover': {
                   background: 'rgba(255, 255, 255, 0.3)',
                 },
@@ -153,14 +171,17 @@ export default function Dashboard() {
               История платежей
             </Button>
             <Button
-              variant="contained"
+              variant="outlined"
               startIcon={<AddIcon />}
               onClick={() => navigate('/subscriptions/new')}
               sx={{
                 background: 'rgba(255, 255, 255, 0.2)',
                 backdropFilter: 'blur(10px)',
+                color: 'white',
+                borderColor: 'rgba(255, 255, 255, 0.5)',
                 '&:hover': {
                   background: 'rgba(255, 255, 255, 0.3)',
+                  borderColor: 'rgba(255, 255, 255, 0.8)',
                 },
               }}
             >
