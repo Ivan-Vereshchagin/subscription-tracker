@@ -41,7 +41,7 @@ const STATUS_COLORS: Record<string, 'default' | 'success' | 'error' | 'warning'>
   cancelled: 'default',
 };
 
-type SortField = 'payment_date' | 'amount' | 'subscription_name';
+type SortField = 'payment_date' | 'amount' | 'subscription_id';
 type SortOrder = 'asc' | 'desc';
 
 export default function Payments() {
@@ -108,7 +108,7 @@ export default function Payments() {
     let aVal: any = a[sortField];
     let bVal: any = b[sortField];
     
-    if (sortField === 'subscription_name') {
+    if (sortField === 'subscription_id') {
       aVal = getSubscriptionName(a.subscription_id);
       bVal = getSubscriptionName(b.subscription_id);
     }
@@ -125,9 +125,9 @@ export default function Payments() {
     setSortOrder(isAsc ? 'desc' : 'asc');
   };
 
-  const handleFilterChange = (field: string) => (event: any) => {
-    setFilters(prev => ({ ...prev, [field]: event.target.value }));
-    setPage(0); // Сброс на первую страницу
+  const handleFilterChange = (field: string) => (e: any) => {
+    setFilters(prev => ({ ...prev, [field]: e.target.value }));
+    setPage(0);
   };
 
   const handleClearFilters = () => {
@@ -290,9 +290,9 @@ export default function Payments() {
                   </TableCell>
                   <TableCell>
                     <TableSortLabel
-                      active={sortField === 'subscription_name'}
-                      direction={sortField === 'subscription_name' ? sortOrder : 'asc'}
-                      onClick={() => handleSort('subscription_name')}
+                      active={sortField === 'subscription_id'}
+                      direction={sortField === 'subscription_id' ? sortOrder : 'asc'}
+                      onClick={() => handleSort('subscription_id')}
                     >
                       Подписка
                     </TableSortLabel>
