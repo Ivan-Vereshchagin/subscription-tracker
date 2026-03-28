@@ -4,6 +4,7 @@ import Dashboard from './pages/Dashboard';
 import CreateSubscription from './pages/CreateSubscription';
 import EditSubscription from './pages/EditSubscription';
 import Payments from './pages/Payments';
+import EditPayment from './pages/EditPayment';
 
 function App() {
   return (
@@ -14,6 +15,7 @@ function App() {
         <Route path="/subscriptions/new" element={<CreateSubscription />} />
         <Route path="/subscriptions/:id/edit" element={<EditSubscription />} />
         <Route path="/payments" element={<Payments />} />
+        <Route path="/payments/:id/edit" element={<EditPayment />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

@@ -62,9 +62,11 @@ export const subscriptionsApi = {
 export const paymentsApi = {
   list: () => apiClient.get('/payments/'),
   listPending: () => apiClient.get('/payments/pending'),
+  get: (id: string) => apiClient.get(`/payments/${id}`),
   listBySubscription: (subscriptionId: string) =>
     apiClient.get(`/payments/subscription/${subscriptionId}`),
   create: (data: any) => apiClient.post('/payments/', data),
+  update: (id: string, data: any) => apiClient.put(`/payments/${id}`, data),
   confirm: (id: string) => apiClient.post(`/payments/${id}/confirm`),
   statsByPeriod: (start: string, end: string) =>
     apiClient.get('/payments/stats/by-period', {

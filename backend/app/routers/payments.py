@@ -172,6 +172,7 @@ def update_payment_full(
     Полностью обновить платёж
 
     - payment_id: ID платежа
+    - subscription_id: ID подписки
     - amount: Сумма
     - currency: Валюта
     - payment_date: Дата платежа
@@ -180,15 +181,15 @@ def update_payment_full(
 
     Требуется аутентификация!
     """
-    from app.crud.payment import get_payment, update_subscription
-    
+    from app.crud.payment import get_payment
+
     payment = get_payment(db, payment_id)
-    
+
     if not payment or payment.user_id != current_user.id:
         raise HTTPException(status_code=404, detail="Платёж не найден")
-    
+
     # Обновляем поля
-    payment.amount = payment_data.price
+    payment.amount = payment_data.amount
     payment.currency = payment_data.currency
     payment.payment_date = payment_data.payment_date
     payment.period_start = payment_data.period_start
