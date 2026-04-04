@@ -367,6 +367,83 @@ def confirm_payment(
     return payment
 
 
+@router.get("/stats/monthly", response_model=dict)
+def get_monthly_stats(
+    year: int = Query(..., description="Год"),
+    month: int = Query(..., ge=1, le=12, description="Месяц (1-12)"),
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Получить статистику за месяц по completed платежам
+    
+    Требуется аутентификация!
+    """
+    from datetime import datetime, timedelta
+    from app.models.subscription import Subscription
+    from app.models.payment import Payment
+    from decimal import Decimal
+
+    start_date = datetime(year, month, 1)
+    if month == 12:
+        end_date = datetime(year + 1, 1, 1)
+    else:
+        end_date = datetime(year, month + 1, 1)
+    
+    payments = db.query(Payment).filter(
+        Payment.user_id == current_user.id,
+        Payment.status == 'completed',
+        Payment.payment_date >= start_date,
+        Payment.payment_date < end_date,
+    ).all()
+    
+    categories_dict = {}
+    total = Decimal(0)
+    
+    for payment in payments:
+        subscription = db.query(Subscription).filter(
+            Subscription.id == payment.subscription_id
+        ).first()
+        
+        if not subscription:
+            continue
+        
+        category = subscription.category
+        
+        if category not in categories_dict:
+            categories_dict[category] = {
+                "category": category,
+                "total": Decimal(0),
+                "percentage": 0,
+                "payments": []
+            }
+        
+        categories_dict[category]["total"] += payment.amount
+        total += payment.amount
+        
+        categories_dict[category]["payments"].append({
+            "id": payment.id,
+            "subscription_name": subscription.name,
+            "amount": float(payment.amount),
+            "payment_date": payment.payment_date.strftime("%Y-%m-%d")
+        })
+    
+    for cat_data in categories_dict.values():
+        if total > 0:
+            cat_data["percentage"] = round((cat_data["total"] / total) * 100, 1)
+        cat_data["total"] = float(cat_data["total"])
+    
+    categories = sorted(categories_dict.values(), key=lambda x: x["total"], reverse=True)
+    
+    return {
+        "total": float(total),
+        "currency": "RUB",
+        "year": year,
+        "month": month,
+        "categories": categories
+    }
+
+
 @router.get("/stats/by-category", response_model=PaymentStatsByCategoryResponse)
 def get_payment_stats_by_category(
     start_date: datetime = Query(..., description="Начало периода"),
