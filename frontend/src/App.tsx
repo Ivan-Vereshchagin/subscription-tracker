@@ -6,6 +6,7 @@ import EditSubscription from './pages/EditSubscription';
 import Payments from './pages/Payments';
 import EditPayment from './pages/EditPayment';
 import CreatePayment from './pages/CreatePayment';
+import Stats from './pages/Stats';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/payments" element={<Payments />} />
         <Route path="/payments/new" element={<CreatePayment />} />
         <Route path="/payments/:id/edit" element={<EditPayment />} />
+        <Route path="/stats" element={<Stats />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

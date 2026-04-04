@@ -68,6 +68,10 @@ export const paymentsApi = {
   create: (data: any) => apiClient.post('/payments/', data),
   update: (id: string, data: any) => apiClient.put(`/payments/${id}`, data),
   confirm: (id: string) => apiClient.post(`/payments/${id}/confirm`),
+  getMonthlyStats: (year: number, month: number) =>
+    apiClient.get('/payments/stats/monthly', {
+      params: { year, month },
+    }),
   statsByPeriod: (start: string, end: string) =>
     apiClient.get('/payments/stats/by-period', {
       params: { start_date: start, end_date: end },
