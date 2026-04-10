@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subscriptionsApi, paymentsApi } from '../api/client';
 import type { Subscription, Payment } from '../types';
+import { useNotification } from '../context/NotificationContext';
 import {
   Container,
   Typography,
@@ -27,6 +28,7 @@ export default function Dashboard() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [pendingPayments, setPendingPayments] = useState<Payment[]>([]);
   const navigate = useNavigate();
+  const { notifySuccess, notifyError } = useNotification();
 
   useEffect(() => {
     loadSubscriptions();
@@ -68,9 +70,10 @@ export default function Dashboard() {
     try {
       await subscriptionsApi.update(id, { is_active: false });
       setSubscriptions(prev => prev.filter(sub => sub.id !== id));
+      notifySuccess('Подписка удалена');
     } catch (error) {
       console.error('Failed to archive subscription:', error);
-      alert('Ошибка при удалении подписки');
+      notifyError('Ошибка при удалении подписки');
     }
   };
 
@@ -83,10 +86,10 @@ export default function Dashboard() {
       await loadPendingPayments();
       // Обновляем подписки (возможно, next_billing_date обновился)
       await loadSubscriptions();
-      alert('Платёж подтверждён!');
+      notifySuccess('Платёж подтверждён!');
     } catch (error) {
       console.error('Failed to confirm payment:', error);
-      alert('Ошибка при подтверждении платежа');
+      notifyError('Ошибка при подтверждении платежа');
     }
   };
 

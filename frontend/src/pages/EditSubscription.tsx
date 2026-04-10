@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
+import { useNotification } from '../context/NotificationContext';
 
 const CATEGORIES = [
   { value: 'Видео', label: 'Видео', icon: '🎬' },
@@ -46,6 +47,7 @@ const BILLING_CYCLES = [
 export default function EditSubscription() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
+  const { notifyError } = useNotification();
   
   const [formData, setFormData] = useState({
     name: '',
@@ -159,11 +161,11 @@ export default function EditSubscription() {
       
       if (Array.isArray(detail)) {
         const messages = detail.map((e: any) => e.msg).join(', ');
-        alert('Ошибка: ' + messages);
+        notifyError('Ошибка: ' + messages);
       } else if (typeof detail === 'string') {
-        alert('Ошибка: ' + detail);
+        notifyError('Ошибка: ' + detail);
       } else {
-        alert('Ошибка при сохранении подписки');
+        notifyError('Ошибка при сохранении подписки');
       }
     } finally {
       setIsSubmitting(false);

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { authApi } from '../api/client';
+import { useNotification } from '../context/NotificationContext';
 import {
   Container,
   Box,
@@ -25,6 +26,7 @@ export default function Login() {
   const [error, setError] = useState('');
   const [isRegister, setIsRegister] = useState(false);
   const navigate = useNavigate();
+  const { notifySuccess, notifyError } = useNotification();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +40,7 @@ export default function Login() {
     try {
       if (isRegister) {
         await authApi.register(email, password);
-        alert('Регистрация успешна! Теперь войдите.');
+        notifySuccess('Регистрация успешна! Теперь войдите.');
         setIsRegister(false);
         setPassword('');
         setConfirmPassword('');
@@ -46,18 +48,17 @@ export default function Login() {
         const response = await authApi.login(email, password);
         localStorage.setItem('access_token', response.data.access_token);
         localStorage.setItem('refresh_token', response.data.refresh_token);
+        notifySuccess('Добро пожаловать!');
         navigate('/dashboard');
       }
     } catch (err: any) {
       const detail = err.response?.data?.detail;
+      const errorMsg = Array.isArray(detail) 
+        ? detail.map((e: any) => e.msg).join(', ') 
+        : typeof detail === 'string' ? detail : 'Ошибка при входе';
       
-      if (Array.isArray(detail)) {
-        setError(detail.map((e: any) => e.msg).join(', '));
-      } else if (typeof detail === 'string') {
-        setError(detail);
-      } else {
-        setError('Ошибка при входе');
-      }
+      setError(errorMsg);
+      notifyError(errorMsg);
     }
   };
 

@@ -5,12 +5,15 @@ import CssBaseline from '@mui/material/CssBaseline';
 import { theme } from './theme';
 import App from './App.tsx';
 import './index.css';
+import { NotificationProvider } from './context/NotificationContext';
 
 createRoot(document.getElementById('root')!).render(
   <StrictMode>
-    <ThemeProvider theme={theme}>
-      <CssBaseline />
-      <App />
-    </ThemeProvider>
+    <NotificationProvider>
+      <ThemeProvider theme={theme}>
+        <CssBaseline />
+        <App />
+      </ThemeProvider>
+    </NotificationProvider>
   </StrictMode>,
 );

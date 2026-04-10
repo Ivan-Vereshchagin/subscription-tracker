@@ -20,6 +20,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
+import { useNotification } from '../context/NotificationContext';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: '⏳ Ожидается',
@@ -47,6 +48,7 @@ export default function EditPayment() {
   const [loading, setLoading] = useState(true);
   const [notFound, setNotFound] = useState(false);
   const [isCompleted, setIsCompleted] = useState(false);
+  const { notifyError } = useNotification();
 
   // Загрузка данных платежа
   useEffect(() => {
@@ -132,11 +134,11 @@ export default function EditPayment() {
       
       if (Array.isArray(detail)) {
         const messages = detail.map((e: any) => e.msg).join(', ');
-        alert('Ошибка: ' + messages);
+        notifyError('Ошибка: ' + messages);
       } else if (typeof detail === 'string') {
-        alert('Ошибка: ' + detail);
+        notifyError('Ошибка: ' + detail);
       } else {
-        alert('Ошибка при сохранении платежа');
+        notifyError('Ошибка при сохранении платежа');
       }
     } finally {
       setIsSubmitting(false);

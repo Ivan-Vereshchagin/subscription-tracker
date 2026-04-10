@@ -19,9 +19,11 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
+import { useNotification } from '../context/NotificationContext';
 
 export default function CreatePayment() {
   const navigate = useNavigate();
+  const { notifyError } = useNotification();
   
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [formData, setFormData] = useState({
@@ -116,11 +118,11 @@ export default function CreatePayment() {
       
       if (Array.isArray(detail)) {
         const messages = detail.map((e: any) => e.msg).join(', ');
-        alert('Ошибка: ' + messages);
+        notifyError('Ошибка: ' + messages);
       } else if (typeof detail === 'string') {
-        alert('Ошибка: ' + detail);
+        notifyError('Ошибка: ' + detail);
       } else {
-        alert('Ошибка при создании платежа');
+        notifyError('Ошибка при создании платежа');
       }
     } finally {
       setIsSubmitting(false);

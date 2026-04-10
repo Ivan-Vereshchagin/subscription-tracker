@@ -17,6 +17,7 @@ import {
 } from '@mui/material';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
+import { useNotification } from '../context/NotificationContext';
 
 // Категории
 const CATEGORIES = [
@@ -42,6 +43,7 @@ const BILLING_CYCLES = [
 ];
 
 export default function CreateSubscription() {
+  const { notifyError } = useNotification();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     name: '',
@@ -120,11 +122,11 @@ export default function CreateSubscription() {
       
       if (Array.isArray(detail)) {
         const messages = detail.map((e: any) => e.msg).join(', ');
-        alert('Ошибка: ' + messages);
+        notifyError('Ошибка: ' + messages);
       } else if (typeof detail === 'string') {
-        alert('Ошибка: ' + detail);
+        notifyError('Ошибка: ' + detail);
       } else {
-        alert('Ошибка при создании подписки');
+        notifyError('Ошибка при создании подписки');
       }
     } finally {
       setIsSubmitting(false);
