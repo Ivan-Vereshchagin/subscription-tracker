@@ -131,93 +131,101 @@ export default function Dashboard() {
           color: 'white',
         }}
       >
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-          <Box>
-            <Typography variant="h4" sx={{ fontWeight: 700, mb: 1 }}>
-              Мои подписки
-            </Typography>
-          </Box>
-          <Box sx={{ display: 'flex', gap: 2 }}>
-            <Button
-              variant="outlined"
-              startIcon={<AttachMoneyIcon />}
-              onClick={() => navigate('/payments/new')}
-              sx={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(10px)',
-                color: 'white',
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.3)',
-                  borderColor: 'rgba(255, 255, 255, 0.8)',
-                },
-              }}
-            >
-              Добавить платёж
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<HistoryIcon />}
-              onClick={() => navigate('/payments')}
-              sx={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(10px)',
-                color: 'white',
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.3)',
-                },
-              }}
-            >
-              История платежей
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<BarChartIcon />}
-              onClick={() => navigate('/stats')}
-              sx={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(10px)',
-                color: 'white',
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.3)',
-                },
-              }}
-            >
-              Статистика
-            </Button>
-            <Button
-              variant="outlined"
-              startIcon={<AddIcon />}
-              onClick={() => navigate('/subscriptions/new')}
-              sx={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                backdropFilter: 'blur(10px)',
-                color: 'white',
-                borderColor: 'rgba(255, 255, 255, 0.5)',
-                '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.3)',
-                  borderColor: 'rgba(255, 255, 255, 0.8)',
-                },
-              }}
-            >
-              Добавить
-            </Button>
-            <IconButton
-              onClick={handleLogout}
-              sx={{
-                background: 'rgba(255, 255, 255, 0.2)',
-                color: 'white',
-                '&:hover': {
-                  background: 'rgba(255, 255, 255, 0.3)',
-                },
-              }}
-            >
-              <LogoutIcon />
-            </IconButton>
-          </Box>
+        <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', position: 'relative', mb: 2 }}>
+          <Typography variant="h4" sx={{ fontWeight: 700, textAlign: 'center'}}>
+            Мои подписки
+          </Typography>
+
+          <IconButton
+            onClick={handleLogout}
+            sx={{
+              position: 'absolute',
+              right: 0,
+              background: 'rgba(255, 255, 255, 0.2)',
+              color: 'white',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.3)',
+              },
+              alignContent: 'right'
+            }}
+          >
+            <LogoutIcon />
+          </IconButton>
         </Box>
+
+        <Box sx={{ display: 'flex', gap: 2 }}>
+          <Button
+            variant="outlined"
+            startIcon={<AttachMoneyIcon />}
+            onClick={() => navigate('/payments/new')}
+            sx={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(10px)',
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.3)',
+                borderColor: 'rgba(255, 255, 255, 0.8)',
+              },
+            }}
+          >
+            Добавить платёж
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<HistoryIcon />}
+            onClick={() => navigate('/payments')}
+            sx={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(10px)',
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.3)',
+              },
+            }}
+          >
+            История платежей
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<BarChartIcon />}
+            onClick={() => navigate('/stats')}
+            sx={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(10px)',
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.3)',
+              },
+            }}
+          >
+            Статистика
+          </Button>
+          <Button
+            variant="outlined"
+            startIcon={<AddIcon />}
+            onClick={() => navigate('/subscriptions/new')}
+            sx={{
+              flex: 1,
+              background: 'rgba(255, 255, 255, 0.2)',
+              backdropFilter: 'blur(10px)',
+              color: 'white',
+              borderColor: 'rgba(255, 255, 255, 0.5)',
+              '&:hover': {
+                background: 'rgba(255, 255, 255, 0.3)',
+                borderColor: 'rgba(255, 255, 255, 0.8)',
+              },
+            }}
+          >
+            Добавить подписку
+          </Button>
+        </Box>
+
 
         {/* Stats */}
         <Box sx={{ mt: 3, display: 'flex', gap: 3 }}>
