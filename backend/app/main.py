@@ -9,6 +9,7 @@ from app.config import settings
 from app.routers.subscriptions import router as subscriptions_router
 from app.routers.auth import router as auth_router
 from app.routers.payments import router as payments_router
+from app.routers.statements import router as statements_router
 from app.scheduler import start_scheduler, stop_scheduler
 
 
@@ -57,6 +58,7 @@ app.add_middleware(
 app.include_router(auth_router)
 app.include_router(subscriptions_router)
 app.include_router(payments_router)
+app.include_router(statements_router)
 
 
 @app.get("/health")
