@@ -80,17 +80,26 @@ export default function Dashboard() {
 
   const handleConfirmPayment = async (paymentId: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     try {
       await paymentsApi.confirm(paymentId);
-      // Обновляем список pending платежей
       await loadPendingPayments();
-      // Обновляем подписки (возможно, next_billing_date обновился)
       await loadSubscriptions();
       notifySuccess('Платёж подтверждён!');
     } catch (error) {
       console.error('Failed to confirm payment:', error);
       notifyError('Ошибка при подтверждении платежа');
+    }
+  };
+
+  const handleDeletePayment = async (paymentId: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    try {
+      await paymentsApi.delete(paymentId);
+      setPendingPayments(prev => prev.filter(p => p.id !== paymentId));
+      notifySuccess('Платёж удалён');
+    } catch (error) {
+      notifyError('Ошибка при удалении платежа');
     }
   };
 
@@ -373,6 +382,18 @@ export default function Dashboard() {
                           onClick={() => navigate(`/payments/${payment.id}/edit`)}
                         >
                           ✏️
+                        </Button>
+                        <Button
+                          size="small"
+                          variant="outlined"
+                          onClick={(e) => handleDeletePayment(payment.id, e)}
+                          sx={{
+                            borderColor: '#ef4444',
+                            color: '#ef4444',
+                            '&:hover': { background: 'rgba(239,68,68,0.08)', borderColor: '#ef4444' },
+                          }}
+                        >
+                          <span style={{ fontSize: '1.2rem' }}>🗑</span>
                         </Button>
                       </Box>
                     </Paper>

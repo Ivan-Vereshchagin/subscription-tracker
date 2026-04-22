@@ -84,6 +84,7 @@ export const paymentsApi = {
   create: (data: any) => apiClient.post('/payments/', data),
   update: (id: string, data: any) => apiClient.put(`/payments/${id}`, data),
   confirm: (id: string) => apiClient.post(`/payments/${id}/confirm`),
+  delete: (id: string) => apiClient.delete(`/payments/${id}`),
   getMonthlyStats: (year: number, month: number) =>
     apiClient.get('/payments/stats/monthly', {
       params: { year, month },
