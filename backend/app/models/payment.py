@@ -70,7 +70,7 @@ class Payment(Base):
     
     status: Mapped[str] = mapped_column(
         String(20),
-        default="completed",  # pending, completed, failed, cancelled
+        default="completed",  # pending, completed, cancelled
         nullable=False,
         index=True
     )

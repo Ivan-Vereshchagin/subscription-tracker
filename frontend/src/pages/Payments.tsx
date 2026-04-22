@@ -30,14 +30,12 @@ import RefreshIcon from '@mui/icons-material/Refresh';
 const STATUS_LABELS: Record<string, string> = {
   pending: 'Ожидается',
   completed: 'Завершён',
-  failed: 'Не удался',
   cancelled: 'Отменён',
 };
 
 const STATUS_COLORS: Record<string, 'default' | 'success' | 'error' | 'warning'> = {
   pending: 'warning',
   completed: 'success',
-  failed: 'error',
   cancelled: 'default',
 };
 
@@ -210,7 +208,6 @@ export default function Payments() {
                 <MenuItem value="">Все</MenuItem>
                 <MenuItem value="completed">✅ Завершён</MenuItem>
                 <MenuItem value="pending">⏳ Ожидается</MenuItem>
-                <MenuItem value="failed">❌ Не удался</MenuItem>
                 <MenuItem value="cancelled">🚫 Отменён</MenuItem>
               </TextField>
             </Grid>

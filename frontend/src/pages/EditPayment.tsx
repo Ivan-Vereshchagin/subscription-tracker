@@ -21,7 +21,6 @@ import { useNotification } from '../context/NotificationContext';
 const STATUS_LABELS: Record<string, string> = {
   pending: '⏳ Ожидается',
   completed: '✅ Завершён',
-  failed: '❌ Не удался',
   cancelled: '🚫 Отменён',
 };
 
