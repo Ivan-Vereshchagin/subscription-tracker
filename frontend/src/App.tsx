@@ -7,6 +7,7 @@ import Payments from './pages/Payments';
 import EditPayment from './pages/EditPayment';
 import CreatePayment from './pages/CreatePayment';
 import Stats from './pages/Stats';
+import ImportStatement from './pages/ImportStatement';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/payments/new" element={<CreatePayment />} />
         <Route path="/payments/:id/edit" element={<EditPayment />} />
         <Route path="/stats" element={<Stats />} />
+        <Route path="/statements/import" element={<ImportStatement />} />
         <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </BrowserRouter>

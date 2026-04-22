@@ -59,6 +59,22 @@ export const subscriptionsApi = {
     }),
 };
 
+export const statementsApi = {
+  upload: (file: File) => {
+    const formData = new FormData();
+    formData.append('file', file);
+    return apiClient.post('/statements/upload', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+  confirm: (transactions: {
+    transaction_date: string;
+    transaction_amount: number;
+    transaction_currency: string;
+    subscription_id: string;
+  }[]) => apiClient.post('/statements/confirm', { transactions }),
+};
+
 export const paymentsApi = {
   list: () => apiClient.get('/payments/'),
   listPending: () => apiClient.get('/payments/pending'),
