@@ -252,21 +252,6 @@ export default function CreatePayment() {
                 />
               </Grid>
 
-              {/* Статус */}
-              <Grid size={{ xs: 12, sm: 6 }}>
-                <FormControl fullWidth required>
-                  <InputLabel>Статус</InputLabel>
-                  <Select
-                    name="status"
-                    value={formData.status}
-                    onChange={handleChange('status')}
-                    label="Статус"
-                  >
-                    <MenuItem value="completed">✅ Завершён</MenuItem>
-                    <MenuItem value="pending">⏳ Ожидается</MenuItem>
-                  </Select>
-                </FormControl>
-              </Grid>
 
               {/* Период: Начало */}
               <Grid size={{ xs: 12, sm: 6 }}>
