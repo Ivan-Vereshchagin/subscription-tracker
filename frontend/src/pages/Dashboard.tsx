@@ -98,7 +98,7 @@ export default function Dashboard() {
       await paymentsApi.delete(paymentId);
       setPendingPayments(prev => prev.filter(p => p.id !== paymentId));
       notifySuccess('Платёж удалён');
-    } catch (error) {
+    } catch {
       notifyError('Ошибка при удалении платежа');
     }
   };
