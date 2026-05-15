@@ -1,4 +1,5 @@
 import axios from 'axios';
+import type { SubscriptionPayload, PaymentPayload } from '../types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
@@ -49,8 +50,8 @@ export const authApi = {
 export const subscriptionsApi = {
   list: () => apiClient.get('/subscriptions/'),
   get: (id: string) => apiClient.get(`/subscriptions/${id}`),
-  create: (data: any) => apiClient.post('/subscriptions/', data),
-  update: (id: string, data: any) => apiClient.put(`/subscriptions/${id}`, data),
+  create: (data: SubscriptionPayload) => apiClient.post('/subscriptions/', data),
+  update: (id: string, data: Partial<SubscriptionPayload>) => apiClient.put(`/subscriptions/${id}`, data),
   delete: (id: string) => apiClient.delete(`/subscriptions/${id}`),
   statsByCategory: () => apiClient.get('/subscriptions/stats/by-category'),
   statsByPeriod: (start: string, end: string) =>
@@ -81,8 +82,8 @@ export const paymentsApi = {
   get: (id: string) => apiClient.get(`/payments/${id}`),
   listBySubscription: (subscriptionId: string) =>
     apiClient.get(`/payments/subscription/${subscriptionId}`),
-  create: (data: any) => apiClient.post('/payments/', data),
-  update: (id: string, data: any) => apiClient.put(`/payments/${id}`, data),
+  create: (data: PaymentPayload) => apiClient.post('/payments/', data),
+  update: (id: string, data: Partial<PaymentPayload>) => apiClient.put(`/payments/${id}`, data),
   confirm: (id: string) => apiClient.post(`/payments/${id}/confirm`),
   delete: (id: string) => apiClient.delete(`/payments/${id}`),
   getMonthlyStats: (year: number, month: number) =>

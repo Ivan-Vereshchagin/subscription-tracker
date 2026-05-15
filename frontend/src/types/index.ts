@@ -22,6 +22,8 @@ export interface Subscription {
   updated_at: string;
 }
 
+export type PaymentStatus = 'pending' | 'completed' | 'cancelled';
+
 export interface Payment {
   id: string;
   subscription_id: string;
@@ -31,8 +33,29 @@ export interface Payment {
   payment_date: string;
   period_start: string;
   period_end: string;
-  status: 'pending' | 'completed' | 'failed' | 'cancelled';
+  status: PaymentStatus;
   created_at: string;
+}
+
+export interface SubscriptionPayload {
+  name: string;
+  category: string;
+  price: number;
+  currency: string;
+  billing_cycle: string;
+  description?: string | null;
+  next_billing_date?: string | null;
+  is_active?: boolean;
+}
+
+export interface PaymentPayload {
+  subscription_id: string;
+  amount: number;
+  currency: string;
+  payment_date: string;
+  period_start?: string;
+  period_end?: string;
+  status?: string;
 }
 
 export interface Token {
