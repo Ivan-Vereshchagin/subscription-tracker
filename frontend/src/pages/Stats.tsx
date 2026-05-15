@@ -20,33 +20,7 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-
-// Цвета для категорий
-const CATEGORY_COLORS: Record<string, string> = {
-  'Видео': '#6366f1',
-  'Музыка': '#ec4899',
-  'Софт': '#8b5cf6',
-  'Игры': '#f43f5e',
-  'Спорт': '#10b981',
-  'Обучение': '#3b82f6',
-  'Покупки': '#f59e0b',
-  'Еда': '#ef4444',
-  'Транспорт': '#64748b',
-  'Другое': '#94a3b8',
-};
-
-const CATEGORY_ICONS: Record<string, string> = {
-  'Видео': '🎬',
-  'Музыка': '🎵',
-  'Софт': '💻',
-  'Игры': '🎮',
-  'Спорт': '🏋️',
-  'Обучение': '📚',
-  'Покупки': '🛒',
-  'Еда': '🍔',
-  'Транспорт': '🚗',
-  'Другое': '📦',
-};
+import { CATEGORY_COLORS, CATEGORY_ICONS } from '../constants/subscriptions';
 
 const MONTHS = [
   'Январь', 'Февраль', 'Март', 'Апрель', 'Май', 'Июнь',

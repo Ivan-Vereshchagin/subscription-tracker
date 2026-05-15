@@ -18,29 +18,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import { useNotification } from '../context/NotificationContext';
-
-// Категории
-const CATEGORIES = [
-  { value: 'Видео', label: 'Видео', icon: '🎬' },
-  { value: 'Музыка', label: 'Музыка', icon: '🎵' },
-  { value: 'Софт', label: 'Софт', icon: '💻' },
-  { value: 'Игры', label: 'Игры', icon: '🎮' },
-  { value: 'Спорт', label: 'Спорт', icon: '🏋️' },
-  { value: 'Обучение', label: 'Обучение', icon: '📚' },
-  { value: 'Покупки', label: 'Покупки', icon: '🛒' },
-  { value: 'Еда', label: 'Еда', icon: '🍔' },
-  { value: 'Транспорт', label: 'Транспорт', icon: '🚗' },
-  { value: 'Другое', label: 'Другое', icon: '📦' },
-];
-
-// Периоды оплаты
-const BILLING_CYCLES = [
-  { value: 'weekly', label: 'Еженедельно' },
-  { value: 'monthly', label: 'Ежемесячно' },
-  { value: 'quarterly', label: 'Раз в 3 месяца' },
-  { value: 'semi-annual', label: 'Раз в 6 месяцев' },
-  { value: 'yearly', label: 'Ежегодно' },
-];
+import { CATEGORIES, BILLING_CYCLES } from '../constants/subscriptions';
 
 export default function CreateSubscription() {
   const { notifyError } = useNotification();

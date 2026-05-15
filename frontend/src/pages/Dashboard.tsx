@@ -24,6 +24,7 @@ import DeleteIcon from '@mui/icons-material/Delete';
 import HistoryIcon from '@mui/icons-material/History';
 import BarChartIcon from '@mui/icons-material/BarChart';
 import UploadFileIcon from '@mui/icons-material/UploadFile';
+import { BILLING_CYCLE_LABELS } from '../constants/subscriptions';
 
 export default function Dashboard() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
@@ -488,11 +489,7 @@ export default function Dashboard() {
                       {sub.price} ₽
                     </Typography>
                     <Typography variant="caption" color="text.secondary" sx={{ display: 'block' }}>
-                      {sub.billing_cycle === 'weekly' && 'в неделю'}
-                      {sub.billing_cycle === 'monthly' && 'в месяц'}
-                      {sub.billing_cycle === 'quarterly' && 'в квартал'}
-                      {sub.billing_cycle === 'semi-annual' && 'в полгода'}
-                      {sub.billing_cycle === 'yearly' && 'в год'}
+                      {BILLING_CYCLE_LABELS[sub.billing_cycle] ?? sub.billing_cycle}
                     </Typography>
                   </Box>
                 </CardContent>
