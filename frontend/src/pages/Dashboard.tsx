@@ -17,8 +17,6 @@ import {
   Avatar,
   Dialog,
   DialogTitle,
-  DialogContent,
-  DialogContentText,
   DialogActions,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
