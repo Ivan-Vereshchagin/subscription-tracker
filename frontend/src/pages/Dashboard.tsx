@@ -15,6 +15,11 @@ import {
   IconButton,
   Chip,
   Avatar,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
 } from '@mui/material';
 import AddIcon from '@mui/icons-material/Add';
 import LogoutIcon from '@mui/icons-material/Logout';
@@ -29,6 +34,7 @@ import { BILLING_CYCLE_LABELS } from '../constants/subscriptions';
 export default function Dashboard() {
   const [subscriptions, setSubscriptions] = useState<Subscription[]>([]);
   const [pendingPayments, setPendingPayments] = useState<Payment[]>([]);
+  const [deleteDialogId, setDeleteDialogId] = useState<string | null>(null);
   const navigate = useNavigate();
   const { notifySuccess, notifyError } = useNotification();
 
@@ -62,13 +68,15 @@ export default function Dashboard() {
     navigate('/login');
   };
 
-  const handleArchive = async (id: string, e: React.MouseEvent) => {
+  const handleArchive = (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    setDeleteDialogId(id);
+  };
 
-    if (!confirm('Вы уверены, что хотите удалить эту подписку?')) {
-      return;
-    }
-
+  const confirmArchive = async () => {
+    if (!deleteDialogId) return;
+    const id = deleteDialogId;
+    setDeleteDialogId(null);
     try {
       await subscriptionsApi.update(id, { is_active: false });
       setSubscriptions(prev => prev.filter(sub => sub.id !== id));
@@ -499,6 +507,15 @@ export default function Dashboard() {
         </Grid>
       </>
       )}
+      <Dialog open={deleteDialogId !== null} onClose={() => setDeleteDialogId(null)}>
+        <DialogTitle>Удалить подписку?</DialogTitle>
+        <DialogActions>
+          <Button onClick={() => setDeleteDialogId(null)}>Отмена</Button>
+          <Button onClick={confirmArchive} color="error" variant="contained">
+            Удалить
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Container>
   );
 }
