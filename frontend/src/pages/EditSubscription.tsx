@@ -22,6 +22,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import { useNotification } from '../context/NotificationContext';
 import { CATEGORIES, BILLING_CYCLES } from '../constants/subscriptions';
+import { getApiError } from '../api/client';
 
 export default function EditSubscription() {
   const { id } = useParams<{ id: string }>();
@@ -76,10 +77,9 @@ export default function EditSubscription() {
     loadSubscription();
   }, [id]);
 
-  const handleChange = (field: string) => (event: any) => {
+  const handleChange = (field: string) => (event: { target: { value: string } }) => {
     const value = event.target.value;
     setFormData(prev => ({ ...prev, [field]: value }));
-    
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -138,17 +138,8 @@ export default function EditSubscription() {
       if (!id) throw new Error('No subscription ID');
       await subscriptionsApi.update(id, subscriptionData);
       navigate('/dashboard');
-    } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      
-      if (Array.isArray(detail)) {
-        const messages = detail.map((e: any) => e.msg).join(', ');
-        notifyError('Ошибка: ' + messages);
-      } else if (typeof detail === 'string') {
-        notifyError('Ошибка: ' + detail);
-      } else {
-        notifyError('Ошибка при сохранении подписки');
-      }
+    } catch (err: unknown) {
+      notifyError('Ошибка: ' + (getApiError(err) ?? 'Ошибка при сохранении подписки'));
     } finally {
       setIsSubmitting(false);
     }

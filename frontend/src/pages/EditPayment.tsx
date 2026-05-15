@@ -17,6 +17,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import { useNotification } from '../context/NotificationContext';
+import { getApiError } from '../api/client';
 
 const STATUS_LABELS: Record<string, string> = {
   pending: '⏳ Ожидается',
@@ -80,10 +81,9 @@ export default function EditPayment() {
     loadPayment();
   }, [id]);
 
-  const handleChange = (field: string) => (event: any) => {
+  const handleChange = (field: string) => (event: { target: { value: string } }) => {
     const value = event.target.value;
     setFormData(prev => ({ ...prev, [field]: value }));
-    
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -126,17 +126,8 @@ export default function EditPayment() {
       if (!id) throw new Error('No payment ID');
       await paymentsApi.update(id, paymentData);
       navigate('/payments');
-    } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      
-      if (Array.isArray(detail)) {
-        const messages = detail.map((e: any) => e.msg).join(', ');
-        notifyError('Ошибка: ' + messages);
-      } else if (typeof detail === 'string') {
-        notifyError('Ошибка: ' + detail);
-      } else {
-        notifyError('Ошибка при сохранении платежа');
-      }
+    } catch (err: unknown) {
+      notifyError('Ошибка: ' + (getApiError(err) ?? 'Ошибка при сохранении платежа'));
     } finally {
       setIsSubmitting(false);
     }

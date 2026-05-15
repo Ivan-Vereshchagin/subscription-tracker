@@ -20,6 +20,7 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import { useNotification } from '../context/NotificationContext';
+import { getApiError } from '../api/client';
 
 export default function CreatePayment() {
   const navigate = useNavigate();
@@ -58,10 +59,9 @@ export default function CreatePayment() {
     loadSubscriptions();
   }, []);
 
-  const handleChange = (field: string) => (event: any) => {
+  const handleChange = (field: string) => (event: { target: { value: string } }) => {
     const value = event.target.value;
     setFormData(prev => ({ ...prev, [field]: value }));
-    
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -108,17 +108,8 @@ export default function CreatePayment() {
     try {
       await paymentsApi.create(paymentData);
       navigate('/payments');
-    } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      
-      if (Array.isArray(detail)) {
-        const messages = detail.map((e: any) => e.msg).join(', ');
-        notifyError('Ошибка: ' + messages);
-      } else if (typeof detail === 'string') {
-        notifyError('Ошибка: ' + detail);
-      } else {
-        notifyError('Ошибка при создании платежа');
-      }
+    } catch (err: unknown) {
+      notifyError('Ошибка: ' + (getApiError(err) ?? 'Ошибка при создании платежа'));
     } finally {
       setIsSubmitting(false);
     }

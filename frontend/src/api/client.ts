@@ -30,6 +30,17 @@ apiClient.interceptors.response.use(
   }
 );
 
+export function getApiError(err: unknown): string | null {
+  if (err && typeof err === 'object' && 'response' in err) {
+    const detail = (err as { response?: { data?: { detail?: unknown } } }).response?.data?.detail;
+    if (Array.isArray(detail)) {
+      return detail.map((e: { msg: string }) => e.msg).join(', ');
+    }
+    if (typeof detail === 'string') return detail;
+  }
+  return null;
+}
+
 export const authApi = {
   register: (email: string, password: string) =>
     apiClient.post('/auth/register', { email, password }),

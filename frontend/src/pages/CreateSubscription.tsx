@@ -19,6 +19,7 @@ import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import SaveIcon from '@mui/icons-material/Save';
 import { useNotification } from '../context/NotificationContext';
 import { CATEGORIES, BILLING_CYCLES } from '../constants/subscriptions';
+import { getApiError } from '../api/client';
 
 export default function CreateSubscription() {
   const { notifyError } = useNotification();
@@ -34,10 +35,9 @@ export default function CreateSubscription() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleChange = (field: string) => (event: any) => {
+  const handleChange = (field: string) => (event: { target: { value: string } }) => {
     const value = event.target.value;
     setFormData(prev => ({ ...prev, [field]: value }));
-    
     if (errors[field]) {
       setErrors(prev => ({ ...prev, [field]: '' }));
     }
@@ -95,17 +95,8 @@ export default function CreateSubscription() {
     try {
       await subscriptionsApi.create(subscriptionData);
       navigate('/dashboard');
-    } catch (err: any) {
-      const detail = err.response?.data?.detail;
-      
-      if (Array.isArray(detail)) {
-        const messages = detail.map((e: any) => e.msg).join(', ');
-        notifyError('Ошибка: ' + messages);
-      } else if (typeof detail === 'string') {
-        notifyError('Ошибка: ' + detail);
-      } else {
-        notifyError('Ошибка при создании подписки');
-      }
+    } catch (err: unknown) {
+      notifyError('Ошибка: ' + (getApiError(err) ?? 'Ошибка при создании подписки'));
     } finally {
       setIsSubmitting(false);
     }
