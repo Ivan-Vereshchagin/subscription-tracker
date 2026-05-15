@@ -45,38 +45,40 @@ export default function EditPayment() {
   const [, setIsCompleted] = useState(false);
   const { notifyError } = useNotification();
 
-  // Загрузка данных платежа
   useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
+    const loadPayment = async () => {
+      try {
+        const response = await paymentsApi.get(id);
+        const payment: Payment = response.data;
+
+        setFormData({
+          amount: payment.amount.toString(),
+          currency: payment.currency,
+          payment_date: payment.payment_date.split('T')[0],
+          period_start: payment.period_start.split('T')[0],
+          period_end: payment.period_end.split('T')[0],
+          status: payment.status,
+          subscription_id: payment.subscription_id,
+        });
+
+        setIsCompleted(payment.status === 'completed');
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          setNotFound(true);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadPayment();
   }, [id]);
-
-  const loadPayment = async () => {
-    if (!id) return;
-    
-    try {
-      const response = await paymentsApi.get(id);
-      const payment: Payment = response.data;
-      
-      setFormData({
-        amount: payment.amount.toString(),
-        currency: payment.currency,
-        payment_date: payment.payment_date.split('T')[0],
-        period_start: payment.period_start.split('T')[0],
-        period_end: payment.period_end.split('T')[0],
-        status: payment.status,
-        subscription_id: payment.subscription_id,
-      });
-      
-      setIsCompleted(payment.status === 'completed');
-    } catch (error: any) {
-      console.error('Failed to load payment:', error);
-      if (error.response?.status === 404) {
-        setNotFound(true);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (field: string) => (event: any) => {
     const value = event.target.value;

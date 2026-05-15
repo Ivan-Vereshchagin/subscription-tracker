@@ -40,28 +40,23 @@ export default function CreatePayment() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
 
-  // Загрузка подписок
   useEffect(() => {
+    const loadSubscriptions = async () => {
+      try {
+        const response = await subscriptionsApi.list();
+        const active = response.data.items.filter((s: Subscription) => s.is_active);
+        setSubscriptions(active);
+        if (active.length > 0) {
+          setFormData(prev => ({ ...prev, subscription_id: active[0].id }));
+        }
+      } catch (error) {
+        console.error('Failed to load subscriptions:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
     loadSubscriptions();
   }, []);
-
-  const loadSubscriptions = async () => {
-    try {
-      const response = await subscriptionsApi.list();
-      // Только активные подписки
-      const active = response.data.items.filter((s: Subscription) => s.is_active);
-      setSubscriptions(active);
-      
-      // Если есть подписки, выбираем первую
-      if (active.length > 0 && !formData.subscription_id) {
-        setFormData(prev => ({ ...prev, subscription_id: active[0].id }));
-      }
-    } catch (error) {
-      console.error('Failed to load subscriptions:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (field: string) => (event: any) => {
     const value = event.target.value;

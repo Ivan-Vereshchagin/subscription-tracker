@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { paymentsApi } from '../api/client';
 import {
@@ -52,16 +52,11 @@ export default function Stats() {
     categories: CategoryData[];
   } | null>(null);
 
-  useEffect(() => {
-    loadStats();
-  }, [currentDate]);
-
-  const loadStats = async () => {
+  const loadStats = useCallback(async () => {
     setLoading(true);
     try {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth() + 1;
-      
       const response = await paymentsApi.getMonthlyStats(year, month);
       setStats(response.data);
     } catch (error) {
@@ -69,7 +64,11 @@ export default function Stats() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [currentDate]);
+
+  useEffect(() => {
+    loadStats();
+  }, [loadStats]);
 
   const handlePrevMonth = () => {
     setCurrentDate(new Date(currentDate.getFullYear(), currentDate.getMonth() - 1, 1));

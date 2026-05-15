@@ -44,34 +44,37 @@ export default function EditSubscription() {
   const [notFound, setNotFound] = useState(false);
 
   useEffect(() => {
+    if (!id) {
+      setLoading(false);
+      return;
+    }
+
+    const loadSubscription = async () => {
+      try {
+        const response = await subscriptionsApi.get(id);
+        const sub: Subscription = response.data;
+
+        setFormData({
+          name: sub.name,
+          category: sub.category,
+          price: sub.price.toString(),
+          billing_cycle: sub.billing_cycle,
+          description: sub.description || '',
+          next_billing_date: sub.next_billing_date ? sub.next_billing_date.split('T')[0] : '',
+          is_active: sub.is_active,
+        });
+      } catch (error: unknown) {
+        const axiosError = error as { response?: { status?: number } };
+        if (axiosError.response?.status === 404) {
+          setNotFound(true);
+        }
+      } finally {
+        setLoading(false);
+      }
+    };
+
     loadSubscription();
   }, [id]);
-
-  const loadSubscription = async () => {
-    if (!id) return;
-    
-    try {
-      const response = await subscriptionsApi.get(id);
-      const sub: Subscription = response.data;
-      
-      setFormData({
-        name: sub.name,
-        category: sub.category,
-        price: sub.price.toString(),
-        billing_cycle: sub.billing_cycle,
-        description: sub.description || '',
-        next_billing_date: sub.next_billing_date ? sub.next_billing_date.split('T')[0] : '',
-        is_active: sub.is_active,
-      });
-    } catch (error: any) {
-      console.error('Failed to load subscription:', error);
-      if (error.response?.status === 404) {
-        setNotFound(true);
-      }
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleChange = (field: string) => (event: any) => {
     const value = event.target.value;
