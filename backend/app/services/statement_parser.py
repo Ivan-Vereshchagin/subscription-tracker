@@ -101,18 +101,103 @@ def parse_sberbank_text(text: str) -> list[TransactionRaw]:
     return transactions
 
 
-def parse_pdf(content: bytes) -> list[TransactionRaw]:
+TBANK_TXN_RE = re.compile(
+    r'^(\d{2}\.\d{2}\.\d{4})\s+'
+    r'\d{2}\.\d{2}\.\d{4}\s+'
+    r'([+-][\d ]+\.\d{2})\s*₽\s+'
+    r'[+-][\d ]+\.\d{2}\s*₽\s+'
+    r'(.+?)\s+'
+    r'(\d{4}|—)\s*$'
+)
+
+TBANK_CONT_RE = re.compile(r'^\d{2}:\d{2}\s+\d{2}:\d{2}(?:\s+(.+))?$')
+
+TBANK_CITY_RE = re.compile(r'^[A-Z0-9][A-Z0-9 \-]+$')
+
+TBANK_SKIP_RE = re.compile(
+    r'^(Внешний перевод|Внутренний перевод|Кэшбэк|Пополнение)',
+    re.IGNORECASE,
+)
+
+
+def parse_tbank_text(text: str) -> list[TransactionRaw]:
+    lines = [line.strip() for line in text.split("\n") if line.strip()]
+    transactions = []
+    i = 0
+
+    while i < len(lines):
+        m = TBANK_TXN_RE.match(lines[i])
+
+        if not m:
+            i += 1
+            continue
+
+        raw_amount = m.group(2).strip()
+        if raw_amount.startswith('+'):
+            i += 1
+            continue
+
+        amount = clean_amount(raw_amount)
+        if amount is None or amount >= 0:
+            i += 1
+            continue
+
+        description = m.group(3).strip()
+        if TBANK_SKIP_RE.match(description):
+            i += 1
+            continue
+
+        cleaned = re.sub(r'^Оплата в\s*', '', description).strip()
+
+        if not cleaned and i + 1 < len(lines):
+            cont = TBANK_CONT_RE.match(lines[i + 1])
+            if cont and cont.group(1):
+                extra = cont.group(1).strip()
+                if not TBANK_CITY_RE.fullmatch(extra):
+                    cleaned = extra
+
+        transactions.append(TransactionRaw(
+            date=datetime.strptime(m.group(1), "%d.%m.%Y").date().isoformat(),
+            amount=abs(amount),
+            currency="RUB",
+            description=cleaned or description,
+        ))
+        i += 1
+
+    return transactions
+
+
+def detect_bank(text: str) -> str:
+    lower = text.lower()
+    if "тбанк" in lower or "тинькофф" in lower or "т-банк" in lower or "tinkoff" in lower:
+        return "tbank"
+    if "сбербанк" in lower or "sberbank" in lower or "сбер" in lower:
+        return "sberbank"
+    return "unknown"
+
+
+
+def parse_pdf(content: bytes) -> tuple[list[TransactionRaw], str]:
     import pdfplumber
 
+    full_text = []
     transactions = []
 
     with pdfplumber.open(io.BytesIO(content)) as pdf:
         for page in pdf.pages:
             text = page.extract_text()
             if text:
-                transactions.extend(parse_sberbank_text(text))
+                full_text.append(text)
 
-    return transactions
+    bank = detect_bank("\n".join(full_text))
+
+    for text in full_text:
+        if bank == "tbank":
+            transactions.extend(parse_tbank_text(text))
+        else:
+            transactions.extend(parse_sberbank_text(text))
+
+    return transactions, bank
 
 
 def name_matches(sub_name: str, description: str) -> bool:

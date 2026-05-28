@@ -42,7 +42,7 @@ async def upload_statement(
         raise HTTPException(status_code=400, detail="Файл слишком большой (максимум 20 МБ)")
 
     try:
-        transactions = parse_pdf(content)
+        transactions, bank = parse_pdf(content)
     except Exception:
         raise HTTPException(status_code=400, detail="Ошибка при чтении PDF")
 
@@ -54,7 +54,7 @@ async def upload_statement(
     return StatementPreviewResponse(
         matched=matched,
         unmatched=unmatched,
-        bank_detected="sberbank",
+        bank_detected=bank,
         total_transactions=len(transactions),
     )
 
