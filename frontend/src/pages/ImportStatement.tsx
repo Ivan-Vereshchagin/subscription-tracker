@@ -10,6 +10,7 @@ import {
   CircularProgress,
   Container,
   Divider,
+  LinearProgress,
   Paper,
   Table,
   TableBody,
@@ -119,10 +120,10 @@ export default function ImportStatement() {
     }
   };
 
-  const scoreColor = (score: number): 'success' | 'warning' | 'default' => {
+  const scoreColor = (score: number): 'success' | 'info' | 'error' => {
     if (score >= 80) return 'success';
-    if (score >= 50) return 'warning';
-    return 'default';
+    if (score >= 50) return 'info';
+    return 'error';
   };
 
   return (
@@ -310,15 +311,20 @@ export default function ImportStatement() {
                                   variant="outlined"
                                 />
                               ) : (
-                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: 0.5 }}>
-                                  <Chip
-                                    label={`${t.match_score}%`}
-                                    size="small"
-                                    color={scoreColor(t.match_score)}
-                                  />
-                                  <Typography variant="caption" color="text.secondary">
-                                    {t.match_reason}
+                                <Box sx={{ minWidth: 72 }}>
+                                  <Typography
+                                    variant="caption"
+                                    fontWeight={600}
+                                    color={`${scoreColor(t.match_score)}.main`}
+                                  >
+                                    {t.match_score}%
                                   </Typography>
+                                  <LinearProgress
+                                    variant="determinate"
+                                    value={t.match_score}
+                                    color={scoreColor(t.match_score)}
+                                    sx={{ borderRadius: 1, height: 6, mt: 0.5 }}
+                                  />
                                 </Box>
                               )}
                             </TableCell>
