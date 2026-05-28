@@ -23,7 +23,6 @@ import {
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
 import CloudUploadIcon from '@mui/icons-material/CloudUpload';
 import CheckCircleIcon from '@mui/icons-material/CheckCircle';
-import HelpOutlineIcon from '@mui/icons-material/HelpOutline';
 
 interface TransactionMatch {
   transaction_date: string;
@@ -340,9 +339,8 @@ export default function ImportStatement() {
             {/* Нераспознанные транзакции */}
             {preview.unmatched.length > 0 && (
               <Paper elevation={0} sx={{ mb: 3, borderRadius: 3, overflow: 'hidden' }}>
-                <Box sx={{ px: 3, py: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'flex-start', gap: 1 }}>
-                  <HelpOutlineIcon sx={{ color: 'text.secondary', fontSize: 20, mt: '6px' }} />
-                  <Box>
+                <Box sx={{ px: 3, py: 2, borderBottom: '1px solid', borderColor: 'divider', display: 'flex', alignItems: 'flex-start', justifyContent: 'center', gap: 1 }}>
+                  <Box sx={{ textAlign: 'center' }}>
                     <Typography variant="h6" sx={{ fontWeight: 600 }}>
                       Без совпадений ({preview.unmatched.length})
                     </Typography>
