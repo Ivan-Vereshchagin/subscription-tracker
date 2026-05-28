@@ -211,6 +211,16 @@ export default function ImportStatement() {
             {/* Сводка */}
             <Paper elevation={0} sx={{ mb: 3, p: 2.5, borderRadius: 3, background: '#f8fafc' }}>
               <Box sx={{ display: 'flex', gap: 3, flexWrap: 'wrap', alignItems: 'center' }}>
+                <Chip
+                  size="small"
+                  label={
+                    preview.bank_detected === 'tbank' ? 'Т-Банк' :
+                    preview.bank_detected === 'sberbank' ? 'Сбер' :
+                    'Банк не определён'
+                  }
+                  color={preview.bank_detected === 'unknown' ? 'default' : 'primary'}
+                  variant="outlined"
+                />
                 <Typography variant="body2" color="text.secondary">
                   Всего транзакций: <strong>{preview.total_transactions}</strong>
                 </Typography>
