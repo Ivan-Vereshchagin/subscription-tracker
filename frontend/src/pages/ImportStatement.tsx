@@ -153,7 +153,7 @@ export default function ImportStatement() {
                 Импорт выписки
               </Typography>
               <Typography variant="body2" sx={{ opacity: 0.85, mt: 0.5 }}>
-                Загрузите PDF-выписку Сбера, чтобы автоматически подтвердить платежи
+                Загрузите PDF-выписку Сбера или Т-Банка, чтобы автоматически подтвердить платежи
               </Typography>
             </Box>
             <Box sx={{ width: 90 }} />
