@@ -4,7 +4,6 @@ from datetime import datetime, timedelta
 from typing import Optional
 
 from jose import JWTError, jwt
-from passlib.context import CryptContext
 
 from app.config import settings
 
@@ -17,8 +16,6 @@ ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
 # Время жизни refresh-токена (в днях)
 REFRESH_TOKEN_EXPIRE_DAYS = 7
-
-pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 def get_secret_key() -> str:
     """
