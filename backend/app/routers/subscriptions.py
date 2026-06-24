@@ -11,7 +11,6 @@ from app.crud.subscription import (
     get_subscription,
     create_subscription,
     update_subscription,
-    delete_subscription,
     get_total_monthly_cost,
     get_total_cost_by_period,
     get_cost_by_category,
@@ -161,26 +160,6 @@ def update_existing_subscription(
 
     return subscription
 
-
-@router.delete("/{subscription_id}", status_code=204)
-def delete_existing_subscription(
-    subscription_id: str,
-    db: Session = Depends(get_db),
-    current_user: User = Depends(get_current_user),
-):
-    """
-    Удалить подписку
-
-    - subscription_id: ID подписки для удаления
-    
-    Требуется аутентификация!
-    """
-    success = delete_subscription(db, subscription_id=subscription_id, user_id=current_user.id)
-
-    if not success:
-        raise HTTPException(status_code=404, detail="Подписка не найдена")
-
-    return None  # 204 No Content
 
 
 @router.get("/stats/monthly-cost", response_model=dict)

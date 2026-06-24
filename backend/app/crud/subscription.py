@@ -138,27 +138,6 @@ def update_subscription(
     return subscription
 
 
-def delete_subscription(db: Session, subscription_id: str, user_id: str) -> bool:
-    """
-    Удалить подписку
-    
-    Args:
-        db: Сессия базы данных
-        subscription_id: ID подписки
-        user_id: ID владельца
-    
-    Returns: True если удалено, False если не найдено
-    """
-    subscription = get_subscription(db, subscription_id, user_id)
-    
-    if not subscription:
-        return False
-    
-    db.delete(subscription)
-    db.commit()
-    
-    return True
-
 
 def get_total_monthly_cost(
     db: Session,
